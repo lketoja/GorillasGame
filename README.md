@@ -14,7 +14,7 @@ $ git clone https://gitlab.utu.fi/tech/education/distributed-systems/distributed
 
 $ cd distributed-gorilla
 
-$ mvn compile exec:java
+$ mvn compile package exec:java
 ```
 
 SBT:
@@ -39,7 +39,7 @@ does not have the leaks
 E.g.
 
 ```bash
-$ java -Dprism.order=sw -jar gorilla.jar
+$ java -Dprism.order=sw -jar target/distributed-gorilla-1.0.jar
 ```
 
 The game will allocate significant amounts of memory. Use the following switch
