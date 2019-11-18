@@ -7,10 +7,10 @@ import fi.utu.tech.oomkit.app.Scheduled;
 import fi.utu.tech.oomkit.canvas.Point2D;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public class GameState implements Scheduled {
     private final GameConfiguration configuration;
@@ -110,9 +110,13 @@ public class GameState implements Scheduled {
     public double wind() {
         return currentTurn.wind;
     }
-
+/*
     public Collection<ProxyGameObject> objectsInRegion(Region region) {
         return getEngine().objectsInRegion(region);
+    }*/
+
+    public void forObjectsInRegion(Region region, Consumer<ProxyGameObject> handler) {
+        getEngine().handleObjectsInRegion(region, handler);
     }
 
     @Override

@@ -18,10 +18,16 @@ public class GorillaLogic implements GraphicalAppLogic {
     private Console console;
     private final MainCanvas mainCanvas = new MainCanvas();
     public Views views;
+
     private GameState gameState;
     private GameMode gameMode;
+
     private String myName = "Mää";
-    private int gameSeed = 1;
+    private final int gameSeed = 1;
+    private final boolean lowendMachine = true; // piirretäänkö 1 vai 3 kaupunkitasoa + feidaukset
+    private final int tickDuration = 20; // päivitys 20 ms välein
+    private final boolean synkistely = false;
+
     private final LinkedBlockingQueue<Move> moves = new LinkedBlockingQueue<>();
     private final List<LinkedBlockingQueue<Move>> otherMoves = new ArrayList<>();
     private final List<Player> otherPlayers = new ArrayList<>();
@@ -33,10 +39,10 @@ public class GorillaLogic implements GraphicalAppLogic {
         return mainCanvas;
     }
 
-    // alustaa pelin logiikan, päivitys 20ms välein
+    // alustaa pelin logiikan
     @Override
     public AppConfiguration configuration() {
-        return new AppConfiguration(20, "Gorilla", false, false, true, true, true);
+        return new AppConfiguration(tickDuration, "Gorilla", false, false, true, true, true);
     }
 
     @Override
@@ -47,7 +53,7 @@ public class GorillaLogic implements GraphicalAppLogic {
 
     @Override
     public void initialize(Window window) {
-        views = new Views(mainCanvas, true, configuration().tickDuration, new Random().nextLong());
+        views = new Views(mainCanvas, lowendMachine, synkistely, configuration().tickDuration, new Random().nextLong());
         this.console = window.console();
 
         setMode(GameMode.Intro);

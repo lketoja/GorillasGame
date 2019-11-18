@@ -19,6 +19,7 @@ public class Parallax extends ProxyCanvas {
     private final boolean containsGorillas;
     private final Random generator;
     private final Point2D tmp = new Point2D();
+    private final Point2D tmp2 = new Point2D(0, 0);
     private double x = 0;
 
     public Parallax(Canvas backend, double shade, boolean containsGorillas, long seed) {
@@ -49,7 +50,7 @@ public class Parallax extends ProxyCanvas {
     }
 
     private BuildingView newBuilding() {
-        return BuildingView.createRandom(generator.nextLong(), 140, 500, shade);
+        return BuildingView.createRandom(generator.nextLong(), 140, 500, shade, tmp, tmp2);
     }
 
     public void update(double delta) {
@@ -76,26 +77,25 @@ public class Parallax extends ProxyCanvas {
         x -= delta;
     }
 
-    private Gorilla gorillaGraphics = new Gorilla(new SimpleEngine(0, 1,1), new Point2D(), new Player("foo", null, false)) {
+    private Gorilla gorillaGraphics = new Gorilla(new SimpleEngine(0, 1, 1), new Point2D(), new Player("foo", null, false)) {
         public Move playTurn() {
             return null;
         }
     };
 
-    private final Point2D tmp2 = new Point2D(0, 0);
-
     @Override
     public void drawBackgroundContent() {
         tmp.set(x, 0);
+        tmp2.set(0, 0);
         for (BuildingView building : buildings) {
             tmp.set(tmp.x, getHeight() - building.height);
             building.draw(this, tmp);
-            tmp.add(building.width/2.0, 0.0);
+            tmp.add(building.width / 2.0, 0.0);
             if (containsGorillas && building.width > 100) {
                 gorillaGraphics.place(tmp);
                 gorillaGraphics.draw(this, tmp2);
             }
-            tmp.add(building.width/2.0, 0.0);
+            tmp.add(building.width / 2.0, 0.0);
         }
     }
 }

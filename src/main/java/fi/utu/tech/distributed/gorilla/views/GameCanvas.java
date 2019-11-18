@@ -1,20 +1,20 @@
 package fi.utu.tech.distributed.gorilla.views;
 
-import fi.utu.tech.distributed.gorilla.logic.GameState;
-import fi.utu.tech.distributed.gorilla.engine.GameObject;
+import fi.utu.tech.distributed.gorilla.engine.ProxyGameObject;
 import fi.utu.tech.distributed.gorilla.engine.Rect;
+import fi.utu.tech.distributed.gorilla.logic.GameState;
 import fi.utu.tech.distributed.gorilla.logic.Player;
 import fi.utu.tech.distributed.gorilla.views.layers.Parallax;
 import fi.utu.tech.distributed.gorilla.views.objects.ObjectView;
 import fi.utu.tech.oomkit.app.Scheduled;
 import fi.utu.tech.oomkit.canvas.Canvas;
-import fi.utu.tech.oomkit.canvas.Point;
 import fi.utu.tech.oomkit.canvas.Point2D;
 import fi.utu.tech.oomkit.colors.CoreColor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class GameCanvas extends ProxyCanvas implements Scheduled {
     private final boolean lowendMachine;
@@ -72,7 +72,7 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
         layer3.update(viewVelocity / 4.0);
     }
 
-    private final Point tmp = new Point(10, 30);
+    private final Point2D tmp = new Point2D();
 
     private String renderTime(double seconds) {
         return (int) (seconds) + " millisekuntia";
@@ -87,7 +87,7 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
     }
 
     private String renderWindStatus() {
-        return "Tuuli: " + gameState.wind() + (gameState.wind()>0 ? " yks. oikealle" : " yks. vasemmalle");
+        return "Tuuli: " + gameState.wind() + (gameState.wind() > 0 ? " yks. oikealle" : " yks. vasemmalle");
     }
 
     @Override
@@ -95,25 +95,38 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
         drawRectangle(topLeft, dimensions, CoreColor.Blue, true);
     }
 
+    private class ObjectListHandler implements Consumer<ProxyGameObject> {
+        ArrayList<ObjectView> list = new ArrayList<>();
+
+        @Override
+        public void accept(ProxyGameObject g) {
+            if (g instanceof ObjectView) list.add((ObjectView) g);
+        }
+
+        void draw() {
+            Collections.sort(objectListHandler.list);
+
+            for (ObjectView obj : objectListHandler.list) obj.draw(GameCanvas.this, view.topLeft);
+            objectListHandler.list.clear();
+        }
+    }
+
+    private ObjectListHandler objectListHandler = new ObjectListHandler();
+
     public void drawForegroundContent() {
         if (!lowendMachine) {
             layer3.redraw();
             layer2.redraw();
         }
         if (gameState != null) {
-            ArrayList<ObjectView> objs = new ArrayList<>();
-            for (GameObject g : gameState.objectsInRegion(view)) {
-                if (g instanceof ObjectView)
-                    objs.add((ObjectView) g);
-            }
+            gameState.forObjectsInRegion(view, objectListHandler);
 
-            Collections.sort(objs);
+            objectListHandler.draw();
 
-            for (ObjectView obj : objs) obj.draw(this, view.topLeft);
-
-            drawText(tmp, CoreColor.Yellow, "Vuoroa jäljellä: " + renderTime(gameTickDuration * (gameState.turnTimeLeft() / gameState.getConfiguration().timeStep)), 16, true, false);
-            drawText(tmp.add(0, 20), CoreColor.Yellow, renderGameStatus(), 16, true, false);
-            drawText(tmp.add(0, 40), CoreColor.Yellow, renderWindStatus(), 16, true, false);
+            tmp.set(10, 30);
+            backend.drawText(tmp, CoreColor.Yellow, "Vuoroa jäljellä: " + renderTime(gameTickDuration * (gameState.turnTimeLeft() / gameState.getConfiguration().timeStep)), 16, true, false);
+            backend.drawText(tmp.add(0, 20), CoreColor.Yellow, renderGameStatus(), 16, true, false);
+            backend.drawText(tmp.add(0, 40), CoreColor.Yellow, renderWindStatus(), 16, true, false);
         }
     }
 }

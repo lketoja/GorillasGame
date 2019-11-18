@@ -76,7 +76,7 @@
         <junit.version>5.5.2</junit.version>
         <junitplatform.version>1.5.2</junitplatform.version>
         <javafx.version>13</javafx.version>
-        <oomkit.version>1.17</oomkit.version>
+        <oomkit.version>1.18</oomkit.version>
         <crypto.version>1.0</crypto.version>
         <classloader.version>1.0</classloader.version>
     </properties>

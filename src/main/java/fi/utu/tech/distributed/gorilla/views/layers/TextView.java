@@ -52,9 +52,10 @@ public class TextView extends ProxyCanvas {
     public void drawBackgroundContent() {
     }
 
+    protected Point2D tmp = new Point2D();
+
     @Override
     public void drawForegroundContent() {
-        Point2D tmp = new Point2D();
         for (int y = 0; y < rowCount(); y++)
             for (int x = 0; x < colCount(); x++)
                 drawCharacter(tmp.set(x, y), charAt(x, y));

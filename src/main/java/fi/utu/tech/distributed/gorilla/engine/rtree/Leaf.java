@@ -23,7 +23,7 @@ public class Leaf<X extends Region> extends Node<X> {
     }
 
     @Override
-    public void findIntersections(Region region, Consumer<X> handler) {
+    public void handleIntersections(Region region, Consumer<X> handler) {
         if (object.intersectsWith(region)) handler.accept(object);
     }
 

@@ -86,12 +86,30 @@ public class SimpleEngine implements Engine {
         g.setId(-1);
     }
 
+    // warning: slow
     @Override
     public Collection<ProxyGameObject> objectsInRegion(Region region) {
         Collection<PhysicalObject> objs = scene.findIntersections(region);
         Set<ProxyGameObject> gobjs = new HashSet<>();
         for (PhysicalObject obj : objs) gobjs.add(slotToGameObject[obj.id]);
         return gobjs;
+    }
+
+    private class SearchDispatcher implements Consumer<PhysicalObject> {
+        public Consumer<ProxyGameObject> handler;
+
+        @Override
+        public void accept(PhysicalObject obj) {
+            handler.accept(slotToGameObject[obj.id]);
+        }
+    }
+
+    private final SearchDispatcher searchDispatcher = new SearchDispatcher();
+
+    @Override
+    public void handleObjectsInRegion(Region region, Consumer<ProxyGameObject> handler) {
+        searchDispatcher.handler = handler;
+        scene.handleIntersections(region, searchDispatcher);
     }
 
     private int assignId() {
@@ -187,7 +205,7 @@ public class SimpleEngine implements Engine {
 
             if (dst.collision) {
                 collisionDispather.active = gobj;
-                scene.findIntersections(dst, collisionDispather);
+                scene.handleIntersections(dst, collisionDispather);
 
                 if (slotToGameObject[i] == null) continue;
 

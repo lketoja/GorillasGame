@@ -93,7 +93,7 @@ javaVersion := { println("SBT uses Java SDK located at "+System.getProperty("jav
 
 publishTo := Some(Resolver.file("file", new File("/tmp/repository")))
 
-val oomkit = "fi.utu.tech" % "oomkit" % "1.17"
+val oomkit = "fi.utu.tech" % "oomkit" % "1.18"
 val crypto = "fi.utu.tech" % "distributed-classloader" % "1.0"
 val classloader = "fi.utu.tech" % "distributed-crypto" % "1.0"
 

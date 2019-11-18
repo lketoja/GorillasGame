@@ -22,8 +22,8 @@ public final class Root<X extends Region> extends Node<X> {
     }
 
     @Override
-    public void findIntersections(Region region, Consumer<X> handler) {
-        tree.findIntersections(region, handler);
+    public void handleIntersections(Region region, Consumer<X> handler) {
+        tree.handleIntersections(region, handler);
     }
 
     @Override

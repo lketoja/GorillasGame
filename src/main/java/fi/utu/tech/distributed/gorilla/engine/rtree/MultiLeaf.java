@@ -26,7 +26,7 @@ public class MultiLeaf<X extends Region> extends Node<X> {
     }
 
     @Override
-    public void findIntersections(Region region, Consumer<X> handler) {
+    public void handleIntersections(Region region, Consumer<X> handler) {
         if (region.intersectsWith(this))
             for (X obj : objects)
                 if (region.intersectsWith(obj)) handler.accept(obj);

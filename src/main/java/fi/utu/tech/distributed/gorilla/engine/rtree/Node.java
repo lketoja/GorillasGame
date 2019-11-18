@@ -34,9 +34,14 @@ public abstract class Node<X extends Region> implements Region {
         bottomRight.set(r.bottomRight());
     }
 
+    @Override
+    public final int hashCode() {
+        throw new Error("!");
+    }
+
     public abstract Collection<X> findIntersections(Region region);
 
-    public abstract void findIntersections(Region region, Consumer<X> handler);
+    public abstract void handleIntersections(Region region, Consumer<X> handler);
 
     public abstract Node<X> add(X obj);
 
@@ -63,7 +68,7 @@ public abstract class Node<X extends Region> implements Region {
         }
 
         @Override
-        public void findIntersections(Region region, Consumer<X> handler) {
+        public void handleIntersections(Region region, Consumer<X> handler) {
         }
 
         @Override
@@ -90,12 +95,11 @@ public abstract class Node<X extends Region> implements Region {
         public int depth() {
             return 0;
         }
+
+        static final NullNode<?> node = new NullNode<>();
     }
 
     protected NullNode<X> nullNode() {
-        if (nullNode == null) nullNode = new NullNode<>();
-        return nullNode;
+        return (NullNode<X>)NullNode.node;
     }
-
-    private NullNode<X> nullNode;
 }

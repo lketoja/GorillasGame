@@ -6,10 +6,21 @@ import fi.utu.tech.oomkit.canvas.Point;
 import fi.utu.tech.oomkit.canvas.Point2D;
 
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class ScrollingTextView extends TextView implements Scheduled {
-    protected final LinkedList<Point> hiddenLetters = new LinkedList<>();
+    protected final Queue<Letter> hiddenLetters = new LinkedList<>();
+    protected final Queue<Letter> visibleLetters = new LinkedList<>();
     private int currentLine;
+
+    class Letter extends Point {
+        final char value;
+
+        public Letter(int x, int y, char value) {
+            super(x, y);
+            this.value = value;
+        }
+    }
 
     public boolean done() {
         return hiddenLetters.isEmpty();
@@ -23,14 +34,10 @@ public class ScrollingTextView extends TextView implements Scheduled {
     public void init() {
         currentLine = -1;
         hiddenLetters.clear();
+        visibleLetters.clear();
         for (int y = 0; y < rows.length; y++)
             for (int x = 0; x < rows[y].length(); x++)
-                if (super.charAt(x, y) != ' ') hiddenLetters.add(new Point(x, y));
-    }
-
-    @Override
-    protected char charAt(int x, int y) {
-        return hiddenLetters.contains(new Point(x, y)) ? ' ' : super.charAt(x, y);
+                if (charAt(x, y) != ' ') hiddenLetters.add(new Letter(x, y, charAt(x, y)));
     }
 
     @Override
@@ -41,7 +48,17 @@ public class ScrollingTextView extends TextView implements Scheduled {
     @Override
     public void tick() {
         if (!hiddenLetters.isEmpty()) {
-            currentLine = hiddenLetters.remove().y;
+            Letter current = hiddenLetters.remove();
+            visibleLetters.add(current);
+            currentLine = current.y;
+        }
+    }
+
+    @Override
+    public void drawForegroundContent() {
+        //drawText(tmp, CoreColor.White, "", 1, true, true);
+        for(Letter l: visibleLetters) {
+            drawCharacter(tmp.set(l.x, l.y), l.value);
         }
     }
 }

@@ -25,19 +25,19 @@ public class Parent<X extends Region> extends Node<X> {
     }
 
     @Override
-    public void findIntersections(Region region, Consumer<X> handler) {
-        left.findIntersections(region, handler);
-        right.findIntersections(region, handler);
+    public void handleIntersections(Region region, Consumer<X> handler) {
+        left.handleIntersections(region, handler);
+        right.handleIntersections(region, handler);
     }
 
     @Override
     public Node<X> add(X obj) {
         performAdd(obj);
         rebalance();
-        assert(contents().contains(obj));
+        assert(contents().contains(obj));/*
         if(!findIntersections(obj).contains(obj)) {
             System.out.println(obj);
-        }
+        }*/
         assert(findIntersections(obj).contains(obj));
         return this;
     }

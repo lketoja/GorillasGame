@@ -79,8 +79,11 @@ public class GameWorld implements Scheduled {
 
         double nextDistance = configuration.minGorillaDistance + builder.nextDouble() * (configuration.maxGorillaDistance - configuration.minGorillaDistance);
 
+        Point2D tmp = new Point2D();
+        Point2D tmp2 = new Point2D();
+
         while (playerPositions.size() < players.size()) {
-            BuildingView bv = BuildingView.createRandom(builder.nextLong(), 140, 500, 0.0);
+            BuildingView bv = BuildingView.createRandom(builder.nextLong(), 140, 500, 0.0, tmp, tmp2);
             Point2D tl = new Point2D(currentX, sceneHeight - bv.height);
             Building building = new Building(engine, tl, bv);
             engine.bindObject(building, true);

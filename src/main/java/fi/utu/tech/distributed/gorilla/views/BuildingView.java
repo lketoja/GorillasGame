@@ -7,12 +7,11 @@ import fi.utu.tech.oomkit.colors.CoreColor;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
-public class BuildingView implements Serializable {
+public class BuildingView {
     public final int width;
     public final int height;
     public final Color color;
@@ -20,27 +19,26 @@ public class BuildingView implements Serializable {
     public final long seed;
     private final double shade;
     private static final List<Color> colorOptions = List.of(CoreColor.Cyan, CoreColor.Gray, CoreColor.Red);
-    private transient WritableImage data;
-    private transient final Point2D tmp = new Point2D(), tmp2 = new Point2D();
+    private WritableImage data;
 
-    public BuildingView(int width, int height, Color color, long seed, double shade) {
+    public BuildingView(int width, int height, Color color, long seed, double shade, Point2D tmp, Point2D tmp2) {
         this.width = width;
         this.height = height;
         this.color = color;
         this.seed = seed;
         this.windows = windows();
         this.shade = shade;
-        draw();
+        draw(tmp, tmp2);
     }
 
-    public static BuildingView createRandom(long seed, int maxWidth, int maxHeight, double shade) {
+    public static BuildingView createRandom(long seed, int maxWidth, int maxHeight, double shade, Point2D tmp, Point2D tmp2) {
         Random jemma = new Random(seed);
 
         Function<Integer, Integer> arvo = max -> jemma.nextInt(max * 4 / 5) + max / 5;
         int leveys = arvo.apply(maxWidth);
         int korkeus = arvo.apply(maxHeight);
 
-        return new BuildingView(leveys, korkeus, colorOptions.get(jemma.nextInt(3)).darken(shade), seed, shade);
+        return new BuildingView(leveys, korkeus, colorOptions.get(jemma.nextInt(3)).darken(shade), seed, shade, tmp, tmp2);
     }
 
     public void draw(Canvas canvas, Point2D position) {
@@ -63,7 +61,7 @@ public class BuildingView implements Serializable {
         return matriisi;
     }
 
-    protected void draw() {
+    protected void draw(Point2D tmp, Point2D tmp2) {
         Canvas c = Canvas.backBuffer(width, height);
 
         tmp.set(0,0);
@@ -93,9 +91,5 @@ public class BuildingView implements Serializable {
         SnapshotParameters parameters;
         parameters = new SnapshotParameters();
         data = c.peer().snapshot(parameters, data);
-    }
-
-    public String toString() {
-        return "Building<" + seed + ">";
     }
 }

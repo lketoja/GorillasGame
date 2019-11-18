@@ -12,9 +12,9 @@ public class Views {
     private final MenuCanvas menuCanvas;
     private final CanvasSwitcher<GameMode> switcher;
 
-    public Views(MainCanvas main, boolean lowendMachine, double tickDuration, long seed) {
+    public Views(MainCanvas main, boolean lowendMachine, boolean synkistely, double tickDuration, long seed) {
         this.mainCanvas = main;
-        introCanvas = new IntroCanvas(mainCanvas, lowendMachine, false, seed);
+        introCanvas = new IntroCanvas(mainCanvas, lowendMachine, synkistely, seed);
         gameCanvas = new GameCanvas(tickDuration, mainCanvas, null, lowendMachine, seed);
         menuCanvas = new MenuCanvas(mainCanvas, lowendMachine, seed, "Gorillasota 2029", new String[]{
                 "Aloita peli",
