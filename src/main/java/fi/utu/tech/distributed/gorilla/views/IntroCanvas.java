@@ -30,8 +30,8 @@ public class IntroCanvas extends ProxyCanvas {
         generator = new Random(seed);
         int gLayer = generator.nextInt(3);
         layer = new Parallax(backend, 0.0, gLayer == 0, generator.nextLong());
-        layer2 = new Parallax(backend, 0.5, gLayer == 1, generator.nextLong());
-        layer3 = new Parallax(backend, 0.7, gLayer == 2, generator.nextLong());
+        layer2 = new Parallax(backend, 0.55, gLayer == 1, generator.nextLong());
+        layer3 = new Parallax(backend, 0.75, gLayer == 2, generator.nextLong());
         init();
     }
 

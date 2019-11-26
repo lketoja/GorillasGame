@@ -42,7 +42,7 @@ public class App extends OOMApp {
 
     @Override
     protected Window generateMainWindow(Stage stage, String appName, double width, double height) {
-        return new SimpleMainWindow(stage, appName, width * 1.5, height * 1.5) {
+        return new SimpleMainWindow(stage, appName, width < 1024 ? width : Math.min(width * 0.91, 1920), height < 768 ? height : Math.min(height * 0.91, 1080)) {
             @Override
             public NodeList bottomBarContent() {
                 return new NodeList(

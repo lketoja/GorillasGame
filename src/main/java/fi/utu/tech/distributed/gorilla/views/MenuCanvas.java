@@ -19,24 +19,42 @@ import java.util.Random;
 public class MenuCanvas extends ProxyCanvas {
     private final Parallax layer3;
     private final Point2D topLeft = new Point2D(0, 0);
+    private final Point2D tmp = new Point2D(0, 0);
+    private final Point2D gorillaSize = new Point2D(0, 0);
     private boolean lowendMachine;
     private List<String> menu;
     private List<String> info;
     private ScrollingTextView menuText;
     private TextView infoText;
     private int selectedItem = 0;
+    private double hScale = 0.8;
 
-    private final Gorilla menuGorilla = new Gorilla(new SimpleEngine(1,2,1), new Point2D(), new Player("foo", null, false)) {
+    private final Gorilla menuGorilla = new Gorilla(new SimpleEngine(1, 2, 1), new Point2D(), new Player("foo", null, false)) {
         public Move playTurn() {
             return null;
+        }
+
+        public void draw(Canvas canvas, Point2D pos) {
+            canvas.drawImage(pos, gorillaSize, img);
         }
     };
 
     public MenuCanvas(Canvas backend, boolean lowendMachine, long seed, String title, String[] menuItems) {
         super(backend);
         this.lowendMachine = lowendMachine;
+
         setMenu(title, menuItems);
-        layer3 = new Parallax(backend, 0.7, false, new Random(seed).nextLong());
+        layer3 = new Parallax(backend, 0.8, false, new Random(seed).nextLong());
+        resized();
+    }
+
+    @Override
+    protected void resized() {
+        super.resized();
+        if (menuGorilla != null) {
+            double s = getHeight() / 11;
+            gorillaSize.set(s * menuGorilla.getForm().x / menuGorilla.getForm().y, s);
+        }
     }
 
     public void setMenu(String title, String[] menuItems) {
@@ -46,26 +64,32 @@ public class MenuCanvas extends ProxyCanvas {
         menu.add("");
         menu.addAll(Arrays.asList(menuItems));
 
-        menuText = new ScrollingTextView(backend, menu.toArray(new String[]{}), 48) {
+        menuText = new ScrollingTextView(backend, menu.toArray(new String[]{}), 16) {
+            protected double fontSize() {
+                return Math.min(Math.max(gorillaSize.y / 2.2, 12), 64);
+            }
+
             @Override
             protected Point2D place(Point2D p) {
-                double f = (int) fontSize();
-                return p.set(160 + p.x * f, 128 + p.y * 100);
+                return p.set(24 + gorillaSize.x * 1.5 + p.x * fontSize() * hScale, 40 + fontSize() / 2 + p.y * gorillaSize.y * 1.1);
             }
         };
 
-        setInfo(new String[] {});
+        setInfo(new String[]{});
     }
 
     public void setInfo(String[] infoItems) {
         info.clear();
         info.addAll(Arrays.asList(infoItems));
 
-        infoText = new TextView(backend, info.toArray(new String[]{}), 32) {
+        infoText = new TextView(backend, info.toArray(new String[]{}), 16) {
+            protected double fontSize() {
+                return Math.min(Math.max(gorillaSize.y / 2.5, 12), 64);
+            }
+
             @Override
             protected Point2D place(Point2D p) {
-                double f = (int) fontSize();
-                return p.set(120 + p.x * f, 620 + p.y * 48);
+                return p.set(24 + p.x * fontSize() * hScale, 40 + menuText.rows.length * gorillaSize.y * 1.1 + fontSize() + p.y * fontSize());
             }
         };
     }
@@ -92,7 +116,7 @@ public class MenuCanvas extends ProxyCanvas {
     public void drawForegroundContent() {
         menuText.drawForegroundContent();
         if (menuText.done()) infoText.drawForegroundContent();
-        menuGorilla.getPosition().set(32, selectedItem * 100 + 338 - menuGorilla.getForm().y);
-        menuGorilla.draw(this, topLeft);
+        tmp.set(24, (1 + selectedItem) * (gorillaSize.y * 1.1) + Math.min(Math.max(gorillaSize.y / 2.2, 12), 64) + 40);
+        menuGorilla.draw(this, tmp);
     }
 }

@@ -86,7 +86,10 @@ public class BuildingView {
             y += väli;
         }
 
-        c.drawRectangle(tmp, tmp2, CoreColor.Blue.dissolve(shade/2), true);
+        tmp.set(0,0);
+        tmp2.set(width,height);
+
+        c.drawRectangle(tmp, tmp2, CoreColor.Blue.dissolve(1.0-shade/2.0), true);
 
         SnapshotParameters parameters;
         parameters = new SnapshotParameters();

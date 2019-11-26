@@ -46,6 +46,7 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
     }
 
     public void focusOnMe() {
+        if (gameState == null) return;
         viewVelocity = 0;
         double mx = (view.topLeft.x + view.bottomRight.x) / 2;
         double gx = gameState.getLocalPlayer().getLaunchPosition().x;
