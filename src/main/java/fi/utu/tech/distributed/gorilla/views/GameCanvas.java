@@ -45,6 +45,15 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
         viewVelocity += v;
     }
 
+    public void focusOnMe() {
+        viewVelocity = 0;
+        double mx = (view.topLeft.x + view.bottomRight.x) / 2;
+        double gx = gameState.getLocalPlayer().getLaunchPosition().x;
+        double delta = gx-mx;
+        view.topLeft.add(delta,0);
+        view.bottomRight.add(delta,0);
+    }
+
     @Override
     protected void resized() {
         super.resized();
@@ -56,7 +65,7 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
 
         this.gameState = gameState;
         updateContent();
-        double sceneHeight = gameState.getConfiguration().gameWorldHeight;
+        double sceneHeight = gameState.configuration.gameWorldHeight;
         view.topLeft.set(0, sceneHeight - getHeight());
         view.bottomRight.set(getWidth(), sceneHeight);
         viewVelocity = 0;
@@ -87,7 +96,7 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
     }
 
     private String renderWindStatus() {
-        return "Tuuli: " + gameState.wind() + (gameState.wind() > 0 ? " yks. oikealle" : " yks. vasemmalle");
+        return "Tuuli: " + gameState.getWindSpeed() + (gameState.getWindSpeed() > 0 ? " yks. oikealle" : " yks. vasemmalle");
     }
 
     @Override
@@ -124,7 +133,7 @@ public class GameCanvas extends ProxyCanvas implements Scheduled {
             objectListHandler.draw();
 
             tmp.set(10, 30);
-            backend.drawText(tmp, CoreColor.Yellow, "Vuoroa jäljellä: " + renderTime(gameTickDuration * (gameState.turnTimeLeft() / gameState.getConfiguration().timeStep)), 16, true, false);
+            backend.drawText(tmp, CoreColor.Yellow, "Vuoroa jäljellä: " + renderTime(gameTickDuration * (gameState.turnTimeLeft() / gameState.configuration.timeStep)), 16, true, false);
             backend.drawText(tmp.add(0, 20), CoreColor.Yellow, renderGameStatus(), 16, true, false);
             backend.drawText(tmp.add(0, 40), CoreColor.Yellow, renderWindStatus(), 16, true, false);
         }

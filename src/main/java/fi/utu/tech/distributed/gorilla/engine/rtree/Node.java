@@ -99,6 +99,7 @@ public abstract class Node<X extends Region> implements Region {
         static final NullNode<?> node = new NullNode<>();
     }
 
+    @SuppressWarnings("unchecked")
     protected NullNode<X> nullNode() {
         return (NullNode<X>)NullNode.node;
     }

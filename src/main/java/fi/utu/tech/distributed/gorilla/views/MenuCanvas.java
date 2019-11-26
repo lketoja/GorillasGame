@@ -6,6 +6,7 @@ import fi.utu.tech.distributed.gorilla.logic.Player;
 import fi.utu.tech.distributed.gorilla.objects.Gorilla;
 import fi.utu.tech.distributed.gorilla.views.layers.Parallax;
 import fi.utu.tech.distributed.gorilla.views.layers.ScrollingTextView;
+import fi.utu.tech.distributed.gorilla.views.layers.TextView;
 import fi.utu.tech.oomkit.canvas.Canvas;
 import fi.utu.tech.oomkit.canvas.Point2D;
 import fi.utu.tech.oomkit.colors.CoreColor;
@@ -20,7 +21,9 @@ public class MenuCanvas extends ProxyCanvas {
     private final Point2D topLeft = new Point2D(0, 0);
     private boolean lowendMachine;
     private List<String> menu;
-    private ScrollingTextView rows;
+    private List<String> info;
+    private ScrollingTextView menuText;
+    private TextView infoText;
     private int selectedItem = 0;
 
     private final Gorilla menuGorilla = new Gorilla(new SimpleEngine(1,2,1), new Point2D(), new Player("foo", null, false)) {
@@ -38,11 +41,12 @@ public class MenuCanvas extends ProxyCanvas {
 
     public void setMenu(String title, String[] menuItems) {
         menu = new ArrayList<>();
+        info = new ArrayList<>();
         menu.add(title);
         menu.add("");
         menu.addAll(Arrays.asList(menuItems));
 
-        rows = new ScrollingTextView(backend, menu.toArray(new String[]{}), 48) {
+        menuText = new ScrollingTextView(backend, menu.toArray(new String[]{}), 48) {
             @Override
             protected Point2D place(Point2D p) {
                 double f = (int) fontSize();
@@ -50,12 +54,26 @@ public class MenuCanvas extends ProxyCanvas {
             }
         };
 
+        setInfo(new String[] {});
+    }
+
+    public void setInfo(String[] infoItems) {
+        info.clear();
+        info.addAll(Arrays.asList(infoItems));
+
+        infoText = new TextView(backend, info.toArray(new String[]{}), 32) {
+            @Override
+            protected Point2D place(Point2D p) {
+                double f = (int) fontSize();
+                return p.set(120 + p.x * f, 620 + p.y * 48);
+            }
+        };
     }
 
     @Override
     public void updateContent() {
         layer3.update(0.5);
-        rows.tick();
+        menuText.tick();
     }
 
     @Override
@@ -70,13 +88,10 @@ public class MenuCanvas extends ProxyCanvas {
         this.selectedItem = selectedItem;
     }
 
-    public int menuItemCount() {
-        return menu.size() - 2;
-    }
-
     @Override
     public void drawForegroundContent() {
-        rows.drawForegroundContent();
+        menuText.drawForegroundContent();
+        if (menuText.done()) infoText.drawForegroundContent();
         menuGorilla.getPosition().set(32, selectedItem * 100 + 338 - menuGorilla.getForm().y);
         menuGorilla.draw(this, topLeft);
     }

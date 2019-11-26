@@ -16,11 +16,7 @@ public class Views {
         this.mainCanvas = main;
         introCanvas = new IntroCanvas(mainCanvas, lowendMachine, synkistely, seed);
         gameCanvas = new GameCanvas(tickDuration, mainCanvas, null, lowendMachine, seed);
-        menuCanvas = new MenuCanvas(mainCanvas, lowendMachine, seed, "Gorillasota 2029", new String[]{
-                "Aloita peli",
-                "Asetukset",
-                "Lopeta peli"
-        });
+        menuCanvas = new MenuCanvas(mainCanvas, lowendMachine, seed, "Gorillasota 2029", new String[]{});
 
         switcher = new CanvasSwitcher<>(mainCanvas, Map.of(
                 GameMode.Intro, introCanvas,
@@ -43,6 +39,14 @@ public class Views {
         menuCanvas.setSelected(selectedMenuItem);
     }
 
+    public void setMenu(String title, String[] items) {
+        menuCanvas.setMenu(title, items);
+    }
+
+    public void setMenuInfo(String[] items) {
+        menuCanvas.setInfo(items);
+    }
+
     public void setGameState(GameState gameState) {
         gameCanvas.setGameState(gameState);
     }
@@ -61,5 +65,9 @@ public class Views {
 
     public void addVelocity(int v) {
         gameCanvas.addVelocity(v);
+    }
+
+    public void focusOnMe() {
+        gameCanvas.focusOnMe();
     }
 }

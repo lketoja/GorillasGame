@@ -2,6 +2,9 @@ package fi.utu.tech.distributed.gorilla.logic;
 
 import java.util.List;
 
+/**
+ * TODO: make compatible with network play
+ */
 public final class GameConfiguration {
     // random seed for constructing the game world
     // should result in identical game worlds on different Java systems

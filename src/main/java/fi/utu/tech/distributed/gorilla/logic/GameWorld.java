@@ -22,12 +22,18 @@ import java.util.Random;
 public class GameWorld implements Scheduled {
     private final GameConfiguration configuration;
     private final ArrayList<Cloud> clouds = new ArrayList<>();
+    private final List<Banana> bananas = new ArrayList<>();
+    private final Wind wind = new Wind();
 
     public final Engine engine;
     public final long initialStateSeed;
-    public final Wind wind = new Wind();
-    private final List<Banana> bananas = new ArrayList<>();
 
+    /**
+     * The initial state can be fully reconstructed from 'configuration' and 'players'.
+     *
+     * @param configuration
+     * @param players
+     */
     public GameWorld(GameConfiguration configuration, List<Player> players) {
         this.configuration = configuration;
         Random builder = new Random(configuration.seed);
@@ -36,11 +42,22 @@ public class GameWorld implements Scheduled {
         init(builder, players);
     }
 
+    /**
+     * 1) Moves the cloud (just aesthetic, does not affect game outcome)
+     * 2) Adjusts the banana trajectories based on wind (deterministic, affects game outcome)
+     */
     @Override
     public void tick() {
         wind.tick();
         for (Cloud c : clouds) c.tick();
         for (Banana b : bananas) b.tick();
+    }
+
+    /**
+     * Changes the wind speed when a new turn begins. Deterministic, affects game outcome.
+     */
+    public void newTurn(Turn currentTurn) {
+        wind.setTarget(currentTurn.windSpeed);
     }
 
     protected void addGorilla(Point2D position, Player player) {
@@ -68,51 +85,71 @@ public class GameWorld implements Scheduled {
         engine.bindObject(sun, false);
     }
 
-    protected void init(Random builder, List<Player> players) {
-        double sceneHeight = configuration.gameWorldHeight;
-        double currentX = 0;
-        double distance = 0;
-        List<Point2D> playerPositions = new ArrayList<>();
-
-        engine.init();
-        clouds.clear();
-
-        double nextDistance = configuration.minGorillaDistance + builder.nextDouble() * (configuration.maxGorillaDistance - configuration.minGorillaDistance);
-
-        Point2D tmp = new Point2D();
-        Point2D tmp2 = new Point2D();
-
-        while (playerPositions.size() < players.size()) {
-            BuildingView bv = BuildingView.createRandom(builder.nextLong(), 140, 500, 0.0, tmp, tmp2);
-            Point2D tl = new Point2D(currentX, sceneHeight - bv.height);
-            Building building = new Building(engine, tl, bv);
-            engine.bindObject(building, true);
-
-            distance += bv.width + 1;
-
-            if (distance > nextDistance && bv.width > 95) {
-                distance = 0;
-                playerPositions.add(tl.copy().add(bv.width / 2.0, 0));
-            }
-
-            currentX += bv.width + 1;
-        }
-
+    protected void addFloor(double sceneHeight, double x1, double x2) {
         ProxyGameObject floor = new SceneBorder(engine,
-                new Point2D(-10, sceneHeight + 1),
-                new Point2D(currentX + 20, 10));
+                new Point2D(x1, sceneHeight + 1),
+                new Point2D(x2, 10));
         engine.bindObject(floor, false);
+    }
 
+    protected void determinePlayerPositions(List<Player> players, List<Point2D> playerPositions, Random builder) {
         Collections.shuffle(playerPositions, builder);
         for (Player player : players) {
             Point2D position = playerPositions.remove(0);
             addGorilla(position, player);
         }
+    }
 
-        int cloudCount = (int) (currentX / 300);
+    protected void init(Random builder, List<Player> players) {
+        final double sceneHeight = configuration.gameWorldHeight;
+        final List<Point2D> playerPositions = new ArrayList<>();
+        double currentX = 0;
 
-        if (configuration.enableClouds) addClouds(builder, currentX, configuration.gameWorldHeight / 8.0, cloudCount);
+        engine.init();
+        clouds.clear();
 
-        if (configuration.enableSun) addSun(currentX / 2, configuration.gameWorldHeight / 16, -(cloudCount / 2) * 2 - 1);
+        // landscape construction, also populates 'playerPositions'
+        {
+            Point2D tmp = new Point2D();
+            Point2D tmp2 = new Point2D();
+            double nextDistance = -1;
+            double distance = 0;
+
+            while (playerPositions.size() < players.size()) {
+                BuildingView bv = BuildingView.createRandom(builder.nextLong(), 140, 500, 0.0, tmp, tmp2);
+                Point2D tl = new Point2D(currentX, sceneHeight - bv.height);
+                Building building = new Building(engine, tl, bv);
+                engine.bindObject(building, true);
+
+                distance += bv.width + 1;
+
+                if (nextDistance == -1) {
+                    nextDistance = configuration.minGorillaDistance + builder.nextDouble() * (configuration.maxGorillaDistance - configuration.minGorillaDistance);
+                }
+
+                if (distance > nextDistance && bv.width > 95) {
+                    distance = 0;
+                    nextDistance = -1;
+                    playerPositions.add(tl.copy().add(bv.width / 2.0, 0));
+                }
+
+                currentX += bv.width + 1;
+            }
+        }
+
+        addFloor(sceneHeight, -10, currentX + 20);
+
+        determinePlayerPositions(players, playerPositions, builder);
+
+        // construct clouds & sun
+        {
+            int cloudCount = (int) (currentX / 300);
+
+            if (configuration.enableClouds)
+                addClouds(builder, currentX, configuration.gameWorldHeight / 8.0, cloudCount);
+
+            if (configuration.enableSun)
+                addSun(currentX / 2, configuration.gameWorldHeight / 16, -(cloudCount / 2) * 2 - 1);
+        }
     }
 }

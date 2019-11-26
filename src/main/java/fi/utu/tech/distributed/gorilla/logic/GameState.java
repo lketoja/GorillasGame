@@ -12,26 +12,34 @@ import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
+/**
+ * TODO: make compatible with network play
+ */
 public class GameState implements Scheduled {
-    private final GameConfiguration configuration;
+    public final GameConfiguration configuration;
     private final LinkedBlockingQueue<Move> localMoves;
-    private Turn currentTurn;
-    private Random randomSource;
     private final List<Player> players = new ArrayList<>();
+    private final Player me;
     private final GameWorld gameWorld;
+    private Turn currentTurn;
     private boolean active = true;
 
     public GameState(GameConfiguration configuration, String localPlayerName, LinkedBlockingQueue<Move> localMoves, List<Player> remotePlayers) {
         this.configuration = configuration;
-
         this.localMoves = localMoves;
 
-        players.add(new Player(localPlayerName, this.localMoves, true));
+        me = new Player(localPlayerName, this.localMoves, true);
+        players.add(me);
         players.addAll(remotePlayers);
 
         gameWorld = new GameWorld(configuration, players);
-        randomSource = new Random(gameWorld.initialStateSeed);
-        currentTurn = new Turn(randomSource, 1, 0, configuration.turnLength);
+
+        // note that the randomSource is constructed from the gameWorld.initialStateSeed
+        // and not used by anything else -> deterministic sequence of turn events
+        {
+            Random randomSource = new Random(gameWorld.initialStateSeed);
+            currentTurn = new Turn(randomSource, 1, 0, configuration.turnLength);
+        }
         init();
     }
 
@@ -42,9 +50,13 @@ public class GameState implements Scheduled {
 
     private void newTurn() {
         currentTurn = currentTurn.next();
-        gameWorld.wind.setTarget(currentTurn.wind);
+        gameWorld.newTurn(currentTurn);
     }
 
+    /**
+     * If the game is active, sets active = false if only 0 or 1 players are alive.
+     * Also prints the result of the game to the console.
+     */
     private void handleEndGameLogic() {
         int aliveCount = 0;
         for (Player player : players) {
@@ -64,7 +76,7 @@ public class GameState implements Scheduled {
         }
     }
 
-    private boolean turnReady() {
+    private boolean isTurnReady() {
         boolean allReady = true;
         for (Player player : players) {
             if (player.alive && !player.readyToMove()) allReady = false;
@@ -79,16 +91,17 @@ public class GameState implements Scheduled {
         if (move instanceof MoveThrowBanana) {
             MoveThrowBanana mtb = (MoveThrowBanana) move;
 
-            if (mtb.angle < -45 || mtb.angle > 225 || mtb.velocity < 0 || mtb.velocity > 150) return;
+            if (Double.isNaN(mtb.angle) || Double.isNaN(mtb.velocity) || mtb.angle < -45 || mtb.angle > 225 || mtb.velocity < 0 || mtb.velocity > 150)
+                return;
 
             gameWorld.addBanana(new Point2D().dir(-mtb.angle, mtb.velocity), player.getLaunchPosition().copy());
         } else if (move instanceof MoveSurrender) {
-            // TODO if needed
+            // TODO: if needed
         }
     }
 
-    public GameConfiguration getConfiguration() {
-        return configuration;
+    public Player getLocalPlayer() {
+        return me;
     }
 
     public List<Player> getPlayers() {
@@ -107,8 +120,8 @@ public class GameState implements Scheduled {
         return currentTurn.startTimeStamp == -1 ? -1 : currentTurn.turnLength - (getEngine().currentTimeStamp() - currentTurn.startTimeStamp);
     }
 
-    public double wind() {
-        return currentTurn.wind;
+    public double getWindSpeed() {
+        return currentTurn.windSpeed;
     }
 /*
     public Collection<ProxyGameObject> objectsInRegion(Region region) {
@@ -127,7 +140,7 @@ public class GameState implements Scheduled {
 
         handleEndGameLogic();
 
-        if (turnReady()) {
+        if (isTurnReady()) {
             newTurn();
             for (Player player : players)
                 if (player.alive) handlePlayerMove(player);
