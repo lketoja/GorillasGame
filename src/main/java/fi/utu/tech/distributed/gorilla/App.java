@@ -59,6 +59,15 @@ public class App extends OOMApp {
         };
     }
 
+    /**
+     * Override if you need to execute stuff using the main() thread before the GUI launches.
+     */
+    @Override
+    public void init() {
+        report("javafx.runtime.version: " + System.getProperties().get("javafx.runtime.version"));
+        report("java version: " + System.getProperty("java.version"));
+    }
+
     public App() {
         super(appLogic);
     }

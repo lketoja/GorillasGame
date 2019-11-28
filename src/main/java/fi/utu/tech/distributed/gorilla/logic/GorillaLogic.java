@@ -142,6 +142,11 @@ public class GorillaLogic implements GraphicalAppLogic {
         updateMenuInfo();
     }
 
+    @Override
+    public void terminate() {
+        System.out.println("Closing the game!");
+    }
+
     public void resetGame() {
         moves.clear();
         otherPlayers.clear();
