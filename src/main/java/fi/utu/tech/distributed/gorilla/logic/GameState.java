@@ -49,7 +49,7 @@ public class GameState implements Scheduled {
     }
 
     private void newTurn() {
-        currentTurn = currentTurn.next();
+        currentTurn = currentTurn.next(getEngine().currentTimeStamp());
         gameWorld.newTurn(currentTurn);
     }
 

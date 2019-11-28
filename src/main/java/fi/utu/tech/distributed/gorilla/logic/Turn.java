@@ -39,7 +39,7 @@ public final class Turn {
         this.turnLength = turnLength;
     }
 
-    public Turn next() {
-        return new Turn(builder, id + 1, startTimeStamp + turnLength, turnLength);
+    public Turn next(double timeStamp) {
+        return new Turn(builder, id + 1, timeStamp + turnLength, turnLength);
     }
 }
