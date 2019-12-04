@@ -7,6 +7,8 @@ contracts/
 .lib/
 .worksheet
 .settings/
+# Without .classpath Eclipse creates its own project structure before reading Maven configuration including bin/
+bin/
 *.iml
 *.ipr
 *.iws

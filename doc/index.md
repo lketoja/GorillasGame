@@ -1,5 +1,5 @@
 # Ohjelmarungon tuonti Eclipseen
-Kloonaa ja tuo projekti Eclipseen käyttämällä Eclipsen Smart Import -työkalua. Ohjattu toiminto löytyy valikosta File > Import > Git > Projects from Git (Smart Import). Toiminto kloonaa projektin koneellesi sekä tuo projektin Eclipseen Maven-konfiguraation mukaisesti.
+Kloonaa ja tuo projekti Eclipseen käyttämällä Eclipsen Smart Import -työkalua. Ohjattu toiminto löytyy valikosta File > Import > Git > Projects from Git (Smart Import). Toiminto kloonaa projektin koneellesi sekä tuo projektin Eclipseen Maven-konfiguraation mukaisesti. Jos ajat ohjelman Eclipsessä käyttäen "Java Application" -kohtaa, valitse Main-metodiksi `Main - fi.utu.tech.distributed.gorilla`.
 
 # Pelin toiminta
 Pelin säännöt ovat yksinkertaiset: kentällä on n gorillaa, jotka heittelevät banaaneja tietyssä kulmassa tietyllä nopeudella toisiaan päin. Mikäli banaani osuu, gorilla kuolee. Viimeinen eloonjäänyt gorilla on voittaja. Peli on jaettu aikarajoitettuihin kierroksiin, jonka aikana kaikki pelaajat päättävät siirtonsa. Kierroksen lopuksi (aika päättynyt tai kaikki gorillat ovat tehneet siirtonsa) gorillat heittävät banaaninsa yhtäaikaisesti. Kierroksen aikana pelissä on aina tietty sää (esimerkiksi tuuli), joka vaikuttaa heittoon.
