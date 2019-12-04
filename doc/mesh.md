@@ -6,7 +6,7 @@ Kontrastina toteutettavaan Mesh-rakenteeseen, yksi yleisimmistä tavoista toteut
 
 Palvelin on näissä ratkaisuissa myös taho, joka loppupeleissä päättää pelin yhteisistä asetuksista, kuten pelaajien maksimimäärästä tai rakennusten sijainnista. Monessa pelissä on mukana niin palvelin- kuin asiakaskomponentitkin, mutta vain yksi pelaajista pystyttää palvelimen, johon muut yhdistävät käyttäen palvelimen IP-osoitetta.
 
-Esimerkkinä asiakas–palvelin arkkitehtuurista voi käyttää [distributed-chat -keskustelusovellusta](https://gitlab.utu.fi/tech/education/distributed-systems/distributed-chat), jossa asiakas lähettää viestejä palvelimelle, joka puolestaan välittää viestit muiden keskustelijoiden asiakasohjelmille.
+Esimerkkinä asiakas–palvelin arkkitehtuurista voi käyttää [distributed-chat -keskustelusovellusta](https://gitlab.utu.fi/tech/education/distributed-systems/distributed-chat), jossa asiakas lähettää viestejä palvelimelle, joka puolestaan välittää viestit muiden keskustelijoiden asiakasohjelmille. Yleistä lisätietoa sockettien käytöstä Javassa on myökin saatavilla [example-sockets-sivulla](https://gitlab.utu.fi/tech/education/distributed-systems/example-sockets).
 
 ```mermaid
 graph BT
@@ -20,9 +20,9 @@ F("Asiakas 5") --> A
 *Graafi eräästä Asiakas–palvelin -verkosta. Nuolet esittävät yhdistämissuuntaa, mutta kommunikaatio on kaksisuuntaista*
 
 ## Mesh-malli
-Tässä harjoitustehtävässä on kuitenkin hieman eri lähestymistapa: Jokaista Mesh-verkon jäsentä kutsutaan *solmuksi* eli *nodeksi* ja ne ovat samanarvoisia toisiinsa nähden. Verkon jokaisen jäsenen tulisi pystyä lähettämään viesti (esimerkiksi olio) kaikille verkon jäsenille (suoraan tai muiden solmujen kautta) tai osoittaa se vain tietylle vastaanottajalle (jonkin id:n avulla). Erona asiakas–palvelin -malliin on, että IP-tasolla solmujen ei tarvitse olla suorassa yhteydessä muihin solmuihin tai yhteen palvelimeen, vaan muut Mesh-verkon jäsenet välittävät viestit eteenpäin.
+Tässä harjoitustehtävässä on kuitenkin hieman eri lähestymistapa: Jokaista Mesh-verkon jäsentä kutsutaan *solmuksi* eli *nodeksi* ja ne ovat ulospäin samanarvoisia toisiinsa nähden. Verkon jokaisen jäsenen tulisi pystyä lähettämään viesti (esimerkiksi olio) kaikille verkon jäsenille (suoraan tai muiden solmujen kautta) tai osoittaa se vain tietylle vastaanottajalle (jonkin id:n tai nimen avulla). Erona asiakas–palvelin -malliin on, että IP-tasolla solmujen ei tarvitse olla suorassa yhteydessä muihin solmuihin tai yhteen palvelimeen, vaan muut Mesh-verkon jäsenet välittävät viestit eteenpäin.
 
-Mallin voi nähdä myös siten, että jokainen solmu on palvelin, joka viestin saatuaan välittää sen kaikille asiakkailleen.
+Mallin voi nähdä myös siten, että jokainen solmu on palvelin, joka viestin saatuaan välittää sen kaikille asiakkailleen (sekä palvelimelle, johon kys. solmu on yhdistänyt). Täten Mesh-kerroksen toteutuksessa on erittäin tärkeää tuntea asiakas-palvelin -mallikin.
 
 ```mermaid
 graph BT
