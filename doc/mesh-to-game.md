@@ -13,7 +13,7 @@
 Luokkarakennetta avattiin jo aiemmin [chatin integrointitehtävän](program-flow-chat.md) yhteydessä. Tässä selostuksessa keskityttiin enemmän käyttöliittymälogiikkaan (`GorillaLogic`-luokka) kuin pelilogiikkaan, johon loput luokat liittyvät enemmissä määrin. Luokkien metodit on dokumentoitu Javadoc-tyylisesti, mutta tässä vielä lyhyet kuvaukset luokkien käyttötarkoituksista:
 
 ### GorillaLogic
-Sisältää käyttöliittymälogiikan: Eli mitä tapahtuu kun tietty komento annetaan, milloin suoritetaan peliä ja milloin valikkoa, mitä tapahtuu kun aloitetaan moninpeli jne. Kutsuu tick-metodissa myös pelitilan (`GameState`) `tick()`-metodia. On jäsennelty siten, että perittäessä oleellisten funktioiden uudelleenmäärittely on helppoa.
+Sisältää käyttöliittymälogiikan: Eli mitä tapahtuu kun tietty komento annetaan, milloin suoritetaan peliä ja milloin valikkoa, mitä tapahtuu kun aloitetaan moninpeli jne. Kutsuu tick-metodissa myös pelitilan (`GameState`) `tick()`-metodia. Luokka jäsennelty siten, että perittäessä oleellisten funktioiden uudelleenmäärittely on helppoa: Komennot kutsuvat `handleKomennonNimi()` -tyylisiä metodeita, jotka on mahdollista perivässä luokassa yliajaa.
 
 ### GameState
 Sisältää pelin tilan ja metodit, joilla tilaa muutetaan. `GorillaLogic`-luokan kutsuma `tick()`-metodi päivittää pelin sisäistä ajan etenemistä. Pelin alkutila määritetään `GameConfiguration`-oliolla ja sen pohjalta luoduin pelaajaobjektein. Luokkaan on lisätty toinen, käyttämätön konstruktori, josta saattaa olla apua moninpelin toteutuksessa.

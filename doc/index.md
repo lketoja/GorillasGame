@@ -1,15 +1,18 @@
+# Ohjelmarungon tuonti Eclipseen
+Kloonaa ja tuo projekti Eclipseen käyttämällä Eclipsen Smart Import -työkalua. Ohjattu toiminto löytyy valikosta File > Import > Git > Projects from Git (Smart Import). Toiminto kloonaa projektin koneellesi sekä tuo projektin Eclipseen Maven-konfiguraation mukaisesti. Jos ajat ohjelman Eclipsessä käyttäen "Java Application" -kohtaa, valitse Main-metodiksi `Main - fi.utu.tech.distributed.gorilla`.
+
 # Pelin toiminta
-Pelin säännöt ovat yksinkertaiset: n gorillaa, jotka heittelevät banaaneja tietyssä kulmassa tietyllä nopeudella toisiaan päin. Mikäli banaani osuu, gorilla kuolee. Viimeinen eloonjäänyt gorilla on voittaja. Peli on jaettu aikarajoitettuihin vuoroihin, jonka aikana kaikki pelaajat päättävät siirtonsa. Vuoron loputtua (aika päättynyt tai kaikki gorillat ovat tehneet siirtonsa) gorillat heittävät banaanit. Vuoron aikana pelissä on aina tietty sää (esimerkiksi tuuli), joka vaikuttaa heittoon.
+Pelin säännöt ovat yksinkertaiset: kentällä on n gorillaa, jotka heittelevät banaaneja tietyssä kulmassa tietyllä nopeudella toisiaan päin. Mikäli banaani osuu, gorilla kuolee. Viimeinen eloonjäänyt gorilla on voittaja. Peli on jaettu aikarajoitettuihin kierroksiin, jonka aikana kaikki pelaajat päättävät siirtonsa. Kierroksen lopuksi (aika päättynyt tai kaikki gorillat ovat tehneet siirtonsa) gorillat heittävät banaaninsa yhtäaikaisesti. Kierroksen aikana pelissä on aina tietty sää (esimerkiksi tuuli), joka vaikuttaa heittoon.
 
 Käynnistyessään peli toistaa lyhyen Intron ja siirtyy tämän jälkeen valikkotilaan, ellei käyttäjä tätä ennen pakota tilanmuutosta käyttöliittymän painikkeilla.
 
 ## Kontrollit
-Peliä ohjataan graafisen käyttöliittymän painikkeilla, näppäimistöllä sekä teksitpohjaisilla komennoilla.
+Peliä ohjataan graafisen käyttöliittymän painikkeilla, näppäimistöllä sekä tekstipohjaisilla komennoilla.
 
 ### Päävalikon kontrollit
 - Nuolinäppäimet + Enter
 
-Huomioi, että päävalikon kontrollit **eivät toimi**, mikäli tekstinsyöttökenttä on valittuna! Napsauta tulostelaatikkoa, jotta focus siirtyy pois syöttölaatikosta
+Huomioi, että päävalikon kontrollit **eivät toimi**, mikäli tekstinsyöttökenttä on valittuna! Napsauta tulostekenttää, jotta fokus siirtyy pois syöttökentästä.
 
 
 ### Alaosan painikkeet
@@ -33,7 +36,7 @@ Tässä harjoitustyössä on kolme päätehtävää, joista ensimmäinen on ohje
 
 Tehtävät:
 1. Toteuta moninpeli (ml. chat) annettuun Gorillapeliin käyttämällä Mesh-tyylistä[^1] verkotusta applikaatiotasolla
-2. Mesh-toteutus on mahdollista toteuttaa nopeasti käyttäen Javan ObjectStreameja, jolloin verkon yli välittyy yksittäisiä serialisoituja olioita. Tämä on kuitenkin abstraktion luoma "illuusio", sillä TCP-socketit kuljettavat matalammalla tasolla pelkkää datavirtaa, eivätkä siis pysty erottamaan missä kohtaa serialisoitu olio päättyy ja mistä seuraava alkaa. Oletetaan olevan yksittäisiä resursseja, kuten serialisoituja olioita, jotka halutaan kuljettaa verkon yli, ilman olemassa olevaa ObjectStreamin kaltaista abstraktiota. Miten viestitte/merkkaatte vastaanottajalle yksittäisten resurssien rajat? (Vinkki: Voitte selvittää, miten osa olemassa olevista protkollista ratkaisee tämän ongelman.)
+2. Mesh-toteutus on mahdollista toteuttaa nopeasti käyttäen Javan ObjectStreameja, jolloin verkon yli välittyy yksittäisiä serialisoituja olioita. Tämä on kuitenkin abstraktion luoma "illuusio", sillä TCP-socketit kuljettavat matalammalla tasolla pelkkää datavirtaa, eivätkä siis pysty erottamaan missä kohtaa serialisoitu olio päättyy ja mistä seuraava alkaa. Oletetaan olevan yksittäisiä resursseja, kuten serialisoituja olioita, jotka halutaan kuljettaa verkon yli, ilman olemassa olevaa ObjectStreamin kaltaista abstraktiota. Miten viestitte/merkkaatte vastaanottajalle yksittäisten resurssien rajat? (Vinkki: Voitte selvittää, miten osa olemassa olevista protokollista ratkaisee tämän ongelman.)
 3. Kerro lyhyesti muutama esimerkkiskenaario, mitä tietoturvaan liittyviä ongelmia Mesh-viestien välitys epäluotettujen solmujen kautta (eli siis toisten pelaajien, mahdollisesti toisen ohjelmabinäärin kautta) tuottaa ja miten ongelmia olisi mahdollista ratkaista.[^2] (Vinkki: digital signature, public key cryptography, Diffie–Hellman key exchange). Vastauksessa ei tarvitse keskittyä salausalgoritmien sisäiseen toimintaan/matemaattiseen teoriaan. 
 
 ## Ensimmäisen tehtävän vaiheet ja haasteet
