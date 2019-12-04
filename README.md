@@ -1,5 +1,5 @@
 # Assignment
-The assignment, program structure and hints for completing the assignment can be found in [doc/index.md](doc/index.md) (in Finnish).
+This README contains only general instructions on how to run the game. The development setup, assignment, program structure and hints for completing the assignment can be found in [doc/index.md](doc/index.md) (in Finnish).
 
 # Project description
 A game where a bunch of gorillas try to kill each other by throwing bananas on time-limited turns. Last survivor is the winner.
