@@ -110,7 +110,9 @@ public class Mesh {
     private boolean tokenExists(long token);
 
     /**
-     *  Yhdistä tämä vertainen olemassaolevaan Mesh-verkkoon
+     * Yhdistä tämä vertainen olemassaolevaan Mesh-verkkoon
+     * @param addr Solmun ip-osoite, johon yhdistetään
+     * @param port Portti, jota vastapuolinen solmu kuuntelee
      */
     public void connect(InetAddress addr, int port);
 }
