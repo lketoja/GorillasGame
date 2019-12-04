@@ -19,3 +19,4 @@ project/target/
 target/
 openjfx/
 dependency-reduced-pom.xml
+.vscode/
