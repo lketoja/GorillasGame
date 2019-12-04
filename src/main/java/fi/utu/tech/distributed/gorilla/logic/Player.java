@@ -5,7 +5,8 @@ import fi.utu.tech.oomkit.canvas.Point2D;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * TODO: may need modifications for network play.
+ * TODO: may need modifications for network play
+ * depending on your implementation, probably not
  */
 public class Player {
     /**

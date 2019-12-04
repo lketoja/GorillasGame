@@ -13,22 +13,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 /**
- * TODO: make compatible with network play
+ * TODO: You may want to compare the constructors
+ * The other may be more suitable for multiplayer
  */
 public class GameState implements Scheduled {
     public final GameConfiguration configuration;
-    private final LinkedBlockingQueue<Move> localMoves;
     private final List<Player> players = new ArrayList<>();
     private final Player me;
     private final GameWorld gameWorld;
     private Turn currentTurn;
     private boolean active = true;
 
+    /**
+     * Creates a new game state object creating a new local player as well
+     * @param configuration The game configuration
+     * @param localPlayerName Local player name
+     * @param localMoves Local player move queue
+     * @param remotePlayers Remote player objects
+     */
     public GameState(GameConfiguration configuration, String localPlayerName, LinkedBlockingQueue<Move> localMoves, List<Player> remotePlayers) {
         this.configuration = configuration;
-        this.localMoves = localMoves;
 
-        me = new Player(localPlayerName, this.localMoves, true);
+        me = new Player(localPlayerName, new LinkedBlockingQueue<Move>(), true);
         players.add(me);
         players.addAll(remotePlayers);
 
@@ -41,6 +47,26 @@ public class GameState implements Scheduled {
             currentTurn = new Turn(randomSource, 1, 0, configuration.turnLength);
         }
         init();
+    }
+
+    /**
+     * Creates a new game state using a list of player objects thus preserving local player location on the list
+     * @param configuration The game configuration
+     * @param players List of all players (Remote and local).
+     * @param me Reference to your player object (out of all)
+     */
+    public GameState(GameConfiguration configuration, List<Player> players, Player me) {
+        this.configuration = configuration;
+        this.me = me;
+        gameWorld = new GameWorld(configuration, players);
+        // note that the randomSource is constructed from the gameWorld.initialStateSeed
+        // and not used by anything else -> deterministic sequence of turn events
+        {
+            Random randomSource = new Random(gameWorld.initialStateSeed);
+            currentTurn = new Turn(randomSource, 1, 0, configuration.turnLength);
+        }
+        init();
+        
     }
 
     private void init() {
@@ -112,8 +138,8 @@ public class GameState implements Scheduled {
         return gameWorld.engine;
     }
 
-    public void addPlayerMove(Move move) {
-        localMoves.add(move);
+    public void addLocalPlayerMove(Move move) {
+        me.moves.add(move);
     }
 
     public double turnTimeLeft() {

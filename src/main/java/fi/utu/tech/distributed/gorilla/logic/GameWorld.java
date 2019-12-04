@@ -18,6 +18,7 @@ import java.util.Random;
  * <p>
  * The class contains state that doesn't need to be shared on remote systems,
  * the initial state can be fully reconstructed from 'configuration' and 'players'.
+ * </p>
  */
 public class GameWorld implements Scheduled {
     private final GameConfiguration configuration;
