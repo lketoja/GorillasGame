@@ -1,9 +1,11 @@
-# Project description
+# Assignment
+The assignment, program structure and hints for completing the assignment can be found in [doc/index.md](doc/index.md) (in Finnish).
 
-TODO description.
+# Project description
+A game where a bunch of gorillas try to kill each other by throwing bananas on time-limited turns. Last survivor is the winner.
 
 Requires Java 11 or later. Compatible with
-Eclipse and IntelliJ IDEA. Minor issues with Netbeans.
+Eclipse, IntelliJ IDEA and VS Code with Java Extension Pack. Minor issues with Netbeans.
 
 ## Installation
 
@@ -58,7 +60,7 @@ References:
 * https://bugs.openjdk.java.net/browse/JDK-8161914
 * https://bugs.openjdk.java.net/browse/JDK-8188094
 * https://stackoverflow.com/a/41398214
-* 
+
 ## Further instructions
 
   * Java platform: https://gitlab.utu.fi/soft/ftdev/wikis/tutorials/jvm-platform
