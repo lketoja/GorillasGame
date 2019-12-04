@@ -42,6 +42,7 @@ Esimerkki: Tarkastellaan graafia Mesh-verkosta, jossa on 9 solmua. Ensimmäinen 
 Jos esimerkkimme mikä tahansa solmu haluaisi nyt lähettää viestin kelle tahansa verkossa, tulisi tämä onnistua, sillä polku on olemassa. 
 
 ### Vaatimukset Mesh-kerrokselle
+- Suositellaan tehtävän TCP-socketeilla
 - Kaikkien solmujen tulee pystyä vastaanottamaan viestit kaikilta solmuilta
 - Yhden solmun tulee tukea useaa tähän yhdistävää solmua säieturvallisesti
 - Viesti tulee pystyä kohdistamaan tietylle solmulle
@@ -58,10 +59,10 @@ Mesh-verkkototeutukseen riittää todennäköisesti 3 luokkaa: Yhteyspyyntöjä 
 Vertaisten ei tarvitse olla erityisen älykkäitä viestien edelleenvälityksessä. Toisin sanoen, vastaanotetun viestin riittää lähettää eteenpäin kaikille naapureille, mikäli se on vastaanotettu ensimmäistä kertaa. On vastaanottajan vastuulla hylätä viesti, joka on jo nähty tai muuten kelvoton.
 
 ### Vinkki 3
-Mesh-verkkototeutuksen luokkarakenne ja julkinen liitäntä voisi näyttää seuraavalle:
+Mesh-verkkototeutuksen pääluokka voisi näyttää seuraavalle:
 
 ```java
-interface Mesh {
+public class Mesh {
     /**
      * Luo Mesh-palvelininstanssi
      * @param port Portti, jossa uusien vertaisten liittymispyyntöjä kuunnellaan
@@ -111,6 +112,6 @@ interface Mesh {
     /**
      *  Yhdistä tämä vertainen olemassaolevaan Mesh-verkkoon
      */
-    public void connect(InetAddress addr);
+    public void connect(InetAddress addr, int port);
 }
 ```
