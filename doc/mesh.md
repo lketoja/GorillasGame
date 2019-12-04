@@ -117,3 +117,14 @@ public class Mesh {
     public void connect(InetAddress addr, int port);
 }
 ```
+
+### Vinkki 4
+Mikäli alkuun pääseminen tuntuu haastavalta, aloita kopioimalla vinkin 3 luokkarakenne `Mesh.java` -tiedostoon ja toteuta luokka siihen asti, että pysyt `run()`-metodissa kuuntelemaan uusia yhteyspyyntöjä.
+
+Kuuntelijasäikeen lisäksi tarvitset luokan, jonka oliot kommunikoivat yhdistäneen asiakkaan kanssa. Ensialkuun riittää, että luot esimerkiksi `Handler`-nimisen luokan, jonka toteutat siihen asti, että se pystyy lukemaan socketeista olioita (kuten String) ja tulostamaan ne näytölle. Samaiseen luokkaan voit luoda myös send(String str) -metodin, joka puolestaan lähettäisi olioita socketin kautta.
+
+Vastaavat rakenteet löytyvät edelleen [distributed-chat -keskustelusovellusta](https://gitlab.utu.fi/tech/education/distributed-systems/distributed-chat) sekä [example-sockets-sivuilta](https://gitlab.utu.fi/tech/education/distributed-systems/example-sockets), josta voit ottaa mallia.
+
+### Vinkki 5
+Voit yhdistää omaan koneeseesi ottamalla yhteyttä ns. loopback-osoitteeseen 127.0.0.1, "localhost"
+
