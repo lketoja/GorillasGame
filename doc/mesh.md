@@ -1,28 +1,10 @@
 # Mesh-verkko
-Ennen siirtymistä Mesh-verkkojen määritelmään, on hyvä huomioida, että Mesh-toteutuksen luonnissa ei tulisi käyttää yhtäkään Gorillapelin luokkaa, vaan tarkoitus on toteuttaa geneerinen verkkokerros, joka pystyy välittämään dataa siihen liittyneiden vertaisten kesken. Gorillapeli muokataan myöhemmissä vaiheissa käyttämään Mesh-toteutusta. Periaatteessa kehityksen ajaksi `Main`-luokan `main()`-metodista voi kommentoida graafisen käyttöliittymän käynnistymisen pois ja testata Mesh-toteutusta ilman Gorillapelin käynnistystä. Itse mesh-toteutuksen luokat suositellaan toteuttamaan omassa pakkauksessaan, esimerkiksi `fi.utu.tech.distributed.mesh`.
+Mesh-verkon määritelmä tämän työn kontekstissa annetaan tässä dokumentissa. Älä käytä Googlea tai muuta hakukonetta määritelmän tarkentamiseen, sillä tässä esitelty malli on yksinkertaistettu versio verrattuna hakukoneitse löytyviin esimerkkeihin. Mikäli kaipaat tarkennusta johonkin kohtaan, lähetä viestiä kurssiassistenteille (jastpa@utu.fi/jaanle@utu.fi) tai kysy harjoitustyöpajoissa.
 
-## Asiakas–palvelin -malli
-Kontrastina toteutettavaan Mesh-rakenteeseen, yksi yleisimmistä tavoista toteuttaa verkkopalveluita on ns. asiakas–palvelin -malli, jossa usea asiakas (tehtävän kontekstissa peli) muodostavat yhteyden yhteen palvelimeen. Asiakas lähettää viestinsä palvelimelle ja palvelin puolestaan asiakkaille: asiakkaat eivät ikinä kommunikoi palvelimen ohi tai välitä viestejä (applikaatiotasolla) toisen palvelimen/asiakkaan kautta.
+Mesh-toteutuksen luonnissa ei tulisi käyttää yhtäkään Gorillapelin luokkaa, vaan tarkoitus on toteuttaa geneerinen verkkokerros, joka pystyy välittämään dataa siihen liittyneiden solmujen kesken. Gorillapeli muokataan myöhemmissä vaiheissa käyttämään Mesh-toteutusta. Periaatteessa kehityksen ajaksi Main-luokan main()-metodista voi kommentoida graafisen käyttöliittymän käynnistymisen pois päältä ja testata Mesh-toteutusta ilman Gorillapelin käynnistystä. Itse mesh-toteutuksen luokat suositellaan toteuttamaan omassa pakkauksessaan, esimerkiksi fi.utu.tech.distributed.mesh.
 
-Palvelin on näissä ratkaisuissa myös taho, joka loppupeleissä päättää pelin yhteisistä asetuksista, kuten pelaajien maksimimäärästä tai rakennusten sijainnista. Monessa pelissä on mukana niin palvelin- kuin asiakaskomponentitkin, mutta vain yksi pelaajista pystyttää palvelimen, johon muut yhdistävät käyttäen palvelimen IP-osoitetta.
-
-Esimerkkinä asiakas–palvelin arkkitehtuurista voi käyttää [distributed-chat -keskustelusovellusta](https://gitlab.utu.fi/tech/education/distributed-systems/distributed-chat), jossa asiakas lähettää viestejä palvelimelle, joka puolestaan välittää viestit muiden keskustelijoiden asiakasohjelmille. Yleistä lisätietoa sockettien käytöstä Javassa on myökin saatavilla [example-sockets-sivulla](https://gitlab.utu.fi/tech/education/distributed-systems/example-sockets).
-
-```mermaid
-graph BT
-A[Palvelin]
-B("Asiakas 1") --> A
-C("Asiakas 2") --> A
-D("Asiakas 3") --> A
-E("Asiakas 4") --> A
-F("Asiakas 5") --> A
-```
-*Graafi eräästä Asiakas–palvelin -verkosta. Nuolet esittävät yhdistämissuuntaa, mutta kommunikaatio on kaksisuuntaista*
-
-## Mesh-malli
-Tässä harjoitustehtävässä on kuitenkin hieman eri lähestymistapa: Jokaista Mesh-verkon jäsentä kutsutaan *solmuksi* eli *nodeksi* ja ne ovat ulospäin samanarvoisia toisiinsa nähden. Verkon jokaisen jäsenen tulisi pystyä lähettämään viesti (esimerkiksi olio) kaikille verkon jäsenille (suoraan tai muiden solmujen kautta) tai osoittaa se vain tietylle vastaanottajalle (jonkin id:n tai nimen avulla). Erona asiakas–palvelin -malliin on, että IP-tasolla solmujen ei tarvitse olla suorassa yhteydessä muihin solmuihin tai yhteen palvelimeen, vaan muut Mesh-verkon jäsenet välittävät viestit eteenpäin.
-
-Mallin voi nähdä myös siten, että jokainen solmu on palvelin, joka viestin saatuaan välittää sen kaikille asiakkailleen (sekä palvelimelle, johon kys. solmu on yhdistänyt). Täten Mesh-kerroksen toteutuksessa on erittäin tärkeää tuntea asiakas-palvelin -mallikin.
+## Toimintakuvaus
+Mesh-verkko koostuu TCP-sokketteja kommunikaatiossa hyödyntävistä *solmuista* (ts. pelin kontekstissa solmut ovat eri koneilla käynnissä olevia gorillapelejä). Yksittäinen solmu sisältää niin asiakas- kuin palvelinkomponentitkin, joka mahdollistaa solmun niin yhdistävän toiseen solmuun kuin myös kuuntelevan toisten solmujen yhteyspyyntöjäkin. Jokainen solmu ottaa yhteyden vain yhteen aiemmin käynnistyneeseen solmuun, mutta yksittäiseen solmuun voivat useat solmut yhdistää. Tämä tekee verkon rakenteesta "puumaisen" (ks. kuva). 
 
 ```mermaid
 graph BT
@@ -37,12 +19,13 @@ H("Solmu 9") --> C
 ```
 *Graafi eräästä Mesh-verkosta. Nuolet esittävät yhdistämissuuntaa, mutta kommunikaatio on kaksisuuntaista*
 
-Esimerkki: Tarkastellaan graafia Mesh-verkosta, jossa on 9 solmua. Ensimmäinen solmu, eli *Solmu 1* ei luonnollisesti voi yhdistää kehenkään, vaan kuuntelee pelkästään yhteydenottopyyntöjä. *Solmun 2* tulee yhdistää ensimmäiseen solmuun, sillä muita mahdollisuuksia ei ole (tähän asti siis ei eroa asiakas–palvelin -malliin). Kolmannen solmun liittyessä tapahtuu kuitenkin muutos toimintaan: Sen sijaan, että *Solmu 3* yhdistäisi *Solmuun 1*, voisi hän myös yhdistää *Solmuun 2* ja "ketjuttua" mukaan. Vaikka *Solmu 3* yhdistää esimerkissämme vielä ensimmäiseen solmuun, päättää jo *Solmu 4* yhdistää verkkoon *Solmun 3* kautta.
 
-Jos esimerkkimme mikä tahansa solmu haluaisi nyt lähettää viestin kelle tahansa verkossa, tulisi tämä onnistua, sillä polku on olemassa. 
+IP-osoite toiseen solmuun annetaan käyttäjän toimesta, eli muiden mekanismia solmujen etsimiseen ei tarvitse toteuttaa. Tämän lisäksi solmulle annetaan parametrina portti, johon serverikomponentti asetetaan kuuntelemaan toisten solmujen yhdistämispyyntöjä.
 
-### Vaatimukset Mesh-kerrokselle
-- Suositellaan tehtävän TCP-socketeilla
+Kun solmut on saatu yhdistettyä TCP-soketeilla toisiinsa, pitäisi viestejä pystyä lähettämään mille tahansa solmulle, joka on verkkoon yhdistänyt. Viestit voi yksinkertaisimmillaan välittää tulvimistekniikalla [(flooding)](https://en.wikipedia.org/wiki/Flooding_(computer_networking)), jolloin siis jokainen solmu vastaanottaessaan viestin, edelleenlähettää sen kaikille naapureillensa (ts. kaikille solmuille, jotka ovat tähän yhdistäneet sekä solmuun, johon tämä itse on yhdistänyt). Tällöin on tärkeää kehittää jokin mekanismi, jolla hillitään kontrolloimatonta viestitulvaa. Eräs tapa on pitää kirjaa, mitkä viestit on vastaanotettu aiemmin, jolloin viestien turha uudelleenlähetys toistamiseen voidaan estää. Tulvimistekniikalla läettäessä voidaan myös yksityisviestit toteuttaa viestiin liitettävän lähetystunnisteen avulla.
+
+## Vaatimukset
+- Toteutetaan TCP-socketeilla
 - Kaikkien solmujen tulee pystyä vastaanottamaan viestit kaikilta solmuilta
 - Yhden solmun tulee tukea useaa tähän yhdistävää solmua säieturvallisesti
 - Viesti tulee pystyä kohdistamaan tietylle solmulle
