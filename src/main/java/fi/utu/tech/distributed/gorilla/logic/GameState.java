@@ -58,6 +58,7 @@ public class GameState implements Scheduled {
     public GameState(GameConfiguration configuration, List<Player> players, Player me) {
         this.configuration = configuration;
         this.me = me;
+        this.players.addAll(players);
         gameWorld = new GameWorld(configuration, players);
         // note that the randomSource is constructed from the gameWorld.initialStateSeed
         // and not used by anything else -> deterministic sequence of turn events
