@@ -1,10 +1,12 @@
 package fi.utu.tech.distributed.gorilla.mesh;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Message implements Serializable{
 	
-	public long token;
+	private ArrayList<Long> tokens = new ArrayList<>();
 	private String text;
 	private long recipient=0L; //default arvo 0 tarkoittaa kaikille suunnattua viestiä
 	
@@ -25,6 +27,10 @@ public class Message implements Serializable{
 	
 	public long getRecipient() {
 		return recipient;
+	}
+	
+	public ArrayList<Long> getTokens(){
+		return tokens;
 	}
 
 }

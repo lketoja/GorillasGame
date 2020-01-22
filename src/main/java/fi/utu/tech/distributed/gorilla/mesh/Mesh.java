@@ -10,13 +10,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Mesh {
 	
-	public long identifier;
+	final long identifier =new Random().nextInt(1000000);
 	private ArrayList<ObjectOutputStream> clientOutStreams;
 	private ObjectOutputStream serverOutStream;
-	private ArrayList<Long> seenMessages;
 	
 	
 	/**
@@ -27,11 +27,30 @@ public class Mesh {
     public Mesh(int port) throws IOException {
     	clientOutStreams = new ArrayList<>();
     	ServerSocket ss = new ServerSocket(port);
-    	while(true) {
-    		Socket cs = ss.accept();
-    		System.out.println("Connection from " + cs.getInetAddress() + "port " + cs.getPort());
-    		new Handler(cs).start();
+    	new ServerThread(ss).start();
+    	System.out.println("Server started.");	
+    }
+    
+    private class ServerThread extends Thread {
+    	private ServerSocket ss;
+    	
+    	public ServerThread(ServerSocket ss) {
+    		this.ss = ss;
     	}
+    	
+    	public void run() {
+    		while(true) {
+				try {
+					Socket cs = ss.accept();
+					System.out.println("Connection from " + cs.getInetAddress() + "port " + cs.getPort());
+	        		new Handler(cs).start();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        		
+        	}
+    	}
+    	
     }
     
     private class Handler extends Thread {
@@ -49,18 +68,24 @@ public class Mesh {
     			InputStream is = client.getInputStream();
     			OutputStream os = client.getOutputStream();
     			ObjectOutputStream oOut = new ObjectOutputStream(os);
-    			addStreamToMesh(oOut);
+    			clientOutStreams.add(oOut);
     			ObjectInputStream oIn = new ObjectInputStream(is);
     			try {
     				while(true) {
     					Message message = (Message)oIn.readObject();
-    					System.out.println(message.getText());
-    					if(!seenMessages.contains(message.token)) {
-    						seenMessages.add(message.token);
+    					
+    					
+    					if(!tokenExists(message)) {
+    						addToken(message);
     						long recipient = message.getRecipient();
         					if(recipient == 0L) {
+        						System.out.println("Received message for everyone (from a client): " + message.getText());
         						broadcast(message);
+        					} else if(recipient == identifier){
+        						System.out.println("Received message for us (from a client): " + message.getText());
         					} else {
+        						System.out.println("Received message meant for someone else (from a client). "
+        								+ "Sending it forward...");
         						send(message, recipient);
         					}
     						
@@ -77,9 +102,6 @@ public class Mesh {
     	}//run
     }//class Handler
     
-    public void addStreamToMesh(ObjectOutputStream oOut) {
-    	clientOutStreams.add(oOut);    	
-    }
 
     /**
      * Lähetä hyötykuorma kaikille vastaanottajille
@@ -114,7 +136,9 @@ public class Mesh {
      * Jos et käytä sisäluokkaa, pitää olla public
      * @param token Viestitunniste 
      */
-    private void addToken(long token);
+    private void addToken(Message message) {
+    	message.getTokens().add(this.identifier);
+    }
 
     /**
      * Tarkista, onko viestitunniste jo olemassa
@@ -122,7 +146,12 @@ public class Mesh {
      * Jos et käytä sisäluokkaa, pitää olla public
      * @param token Viestitunniste 
      */
-    private boolean tokenExists(long token);
+    private boolean tokenExists(Message message) {
+    	if(message.getTokens().contains(this.identifier)) {
+    		return true;
+    	}
+    	return false;
+    }
 
     /**
      * Yhdistä tämä vertainen olemassaolevaan Mesh-verkkoon
@@ -140,7 +169,21 @@ public class Mesh {
     	ObjectInputStream oIn = new ObjectInputStream(is);
     	while(true) {
     		Message message = (Message)oIn.readObject();
-    		System.out.println(message.getText());
+			if(!tokenExists(message)) {
+				addToken(message);
+				long recipient = message.getRecipient();
+				if(recipient == 0L) {
+					System.out.println("Received message for everyone (from a server): " + message.getText());
+					broadcast(message);
+				} else if(recipient == identifier){
+					System.out.println("Received message for us (from a server): " + message.getText());
+				} else {
+					System.out.println("Received message meant for someone else (from a server). "
+							+ "Sending it forward...");
+					send(message, recipient);
+				}
+				
+			}
     	}
  
     }
