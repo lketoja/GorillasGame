@@ -12,11 +12,13 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Mesh {
+public class Mesh extends Thread{
 	
-	final long identifier =new Random().nextInt(1000000);
-	private ArrayList<ObjectOutputStream> clientOutStreams;
-	private ObjectOutputStream serverOutStream;
+	final long meshId = new Random().nextLong();
+	private ArrayList<Handler> handlers = new ArrayList<>();
+	private ServerSocket ss;
+	private int serverPort;
+	private ArrayList<Long> seenMessages = new ArrayList<>();
 	
 	
 	/**
@@ -25,96 +27,38 @@ public class Mesh {
 	 * @throws IOException 
      */
     public Mesh(int port) throws IOException {
-    	clientOutStreams = new ArrayList<>();
-    	ServerSocket ss = new ServerSocket(port);
-    	new ServerThread(ss).start();
-    	System.out.println("Server started.");	
+    	serverPort = port;
+    	ss = new ServerSocket(port);
+    	System.out.println("New Mesh created.");
     }
     
-    private class ServerThread extends Thread {
-    	private ServerSocket ss;
-    	
-    	public ServerThread(ServerSocket ss) {
-    		this.ss = ss;
+    /**
+     *  Käynnistä uusien vertaisten kuuntelusäie
+     */
+    public void run() {
+    	System.out.println("Server started. Running on port " + serverPort);
+    	while(true) {
+			try {
+				Socket cs = ss.accept();
+				System.out.println("Connection from " + cs.getInetAddress() + "port " + cs.getPort());
+				Handler handler = new Handler(cs);
+				handlers.add(handler);
+        		handler.start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
     	}
-    	
-    	public void run() {
-    		while(true) {
-				try {
-					Socket cs = ss.accept();
-					System.out.println("Connection from " + cs.getInetAddress() + "port " + cs.getPort());
-	        		new Handler(cs).start();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-        		
-        	}
-    	}
-    	
     }
     
-    private class Handler extends Thread {
-    	private Socket client;
-    	
-    	public Handler(Socket clientSocket) {
-    		client = clientSocket;
-    	}
-    	
-    	/**
-         *  Käynnistä uusien vertaisten kuuntelusäie
-         */
-    	public void run() {
-    		try {
-    			InputStream is = client.getInputStream();
-    			OutputStream os = client.getOutputStream();
-    			ObjectOutputStream oOut = new ObjectOutputStream(os);
-    			clientOutStreams.add(oOut);
-    			ObjectInputStream oIn = new ObjectInputStream(is);
-    			try {
-    				while(true) {
-    					Message message = (Message)oIn.readObject();
-    					
-    					
-    					if(!tokenExists(message)) {
-    						addToken(message);
-    						long recipient = message.getRecipient();
-        					if(recipient == 0L) {
-        						System.out.println("Received message for everyone (from a client): " + message.getText());
-        						broadcast(message);
-        					} else if(recipient == identifier){
-        						System.out.println("Received message for us (from a client): " + message.getText());
-        					} else {
-        						System.out.println("Received message meant for someone else (from a client). "
-        								+ "Sending it forward...");
-        						send(message, recipient);
-        					}
-    						
-    					}
-    				}
-    			} catch(IOException e) {
-    				client.close();
-    			}
-    			
-    		}catch(Exception e){
-    			throw new Error(e.toString());
-    			
-    		}
-    	}//run
-    }//class Handler
-    
-
     /**
      * Lähetä hyötykuorma kaikille vastaanottajille
      * @param o Lähetettävä hyötykuorma
      * @throws IOException 
      */
-    public void broadcast(Serializable o) throws IOException {
-    	for(ObjectOutputStream oOut : clientOutStreams) {
-    		oOut.writeObject(o);
-    		oOut.flush();
+    public void broadcast(Message message) throws IOException {
+    	for(Handler handler : handlers) {
+    		handler.send(message);
     	}
-    	serverOutStream.writeObject(o);
-    	System.out.println("Broadcast: " + o.toString());
     }
 
     /**
@@ -122,12 +66,20 @@ public class Mesh {
      * @param o Lähetettävä hyötykuorma
      * @param recipient Vastaanottavan vertaisen tunnus
      */
-    public void send(Serializable o, long recipient);
+    public void send(Serializable o, long recipient) {}
 
     /**
      * Sulje mesh-palvelin ja kaikki sen yhteydet 
      */
-    public void close();
+    public void close() {
+    	for(Handler handler : handlers) {
+    		try {
+				handler.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    }
 
     /**
      * Lisää token, eli "viestitunniste"
@@ -137,7 +89,7 @@ public class Mesh {
      * @param token Viestitunniste 
      */
     private void addToken(Message message) {
-    	message.getTokens().add(this.identifier);
+    	seenMessages.add(message.getToken());
     }
 
     /**
@@ -147,7 +99,7 @@ public class Mesh {
      * @param token Viestitunniste 
      */
     private boolean tokenExists(Message message) {
-    	if(message.getTokens().contains(this.identifier)) {
+    	if(seenMessages.contains(message.getToken())) {
     		return true;
     	}
     	return false;
@@ -162,31 +114,64 @@ public class Mesh {
      */
     public void connect(InetAddress addr, int port) throws IOException, ClassNotFoundException {
     	Socket s = new Socket(addr, port);
-    	System.out.println("Connection made");
-    	InputStream is = s.getInputStream();
-    	OutputStream os = s.getOutputStream();
-    	serverOutStream = new ObjectOutputStream(os);
-    	ObjectInputStream oIn = new ObjectInputStream(is);
-    	while(true) {
-    		Message message = (Message)oIn.readObject();
-			if(!tokenExists(message)) {
-				addToken(message);
-				long recipient = message.getRecipient();
-				if(recipient == 0L) {
-					System.out.println("Received message for everyone (from a server): " + message.getText());
-					broadcast(message);
-				} else if(recipient == identifier){
-					System.out.println("Received message for us (from a server): " + message.getText());
-				} else {
-					System.out.println("Received message meant for someone else (from a server). "
-							+ "Sending it forward...");
-					send(message, recipient);
-				}
-				
+    	System.out.println("Connection made to server");
+		Handler handler = new Handler(s);
+		handlers.add(handler);
+		handler.start();
+    }
+    
+    private class Handler extends Thread {
+    	private Socket socket;
+    	ObjectOutputStream oOut;
+    	ObjectInputStream oIn;
+    	
+    	public Handler(Socket socket) throws IOException {
+    		socket = this.socket;
+    		oOut = new ObjectOutputStream(socket.getOutputStream());
+    		oIn = new ObjectInputStream(socket.getInputStream());
+    	}
+    	
+    	public void run() {
+    			try {
+    				while(true) {
+    					Message message = (Message)oIn.readObject();    					
+    					if(!tokenExists(message)) {
+    						addToken(message);
+    						long recipient = message.getRecipient();
+        					if(recipient == 0L) {
+        						System.out.println("Received message for everyone: " + message.getText());
+        						broadcast(message);
+        					} else if(recipient == meshId){
+        						System.out.println("Received message for us: " + message.getText());
+        					} else {
+        						System.out.println("Received message meant for someone else. "
+        								+ "Sending it forward...");
+        						broadcast(message);
+        					}
+    					}
+    				}
+    			} catch(Exception e) {
+    				e.printStackTrace();
+    			}	
+    		}//run
+    	
+    	
+    	//siirrä tänne broadcast metodin logiikka
+    	public void send(Message message) {
+    		try {
+				oOut.writeObject(message);
+				oOut.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
     	}
- 
-    }
+    	
+    	public void close() throws IOException {
+    		oOut.close();
+    		oIn.close();
+    	}
+    	
+    }//class Handler
 
 
 }
