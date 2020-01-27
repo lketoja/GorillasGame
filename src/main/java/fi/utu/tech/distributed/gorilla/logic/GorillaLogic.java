@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -145,13 +146,23 @@ public class GorillaLogic implements GraphicalAppLogic {
         // To --port=1234 
         // IDEA: Run -> Edit configurations -> Program arguments
         // Eclipse (Ran as Java Application): Run -> Run configuration... -> Java Application -> Main (varies) -> Arguments -> Program arguments
+    	System.out.println("Komentoriviparametrien testaus: " + parameters.getNamed().getOrDefault("testi", "default"));
 
         // Start server on the port given as a command line parameter or 1234
-        startServer(parameters.getNamed().getOrDefault("port", "1234"));
-
+        startServer(parameters.getNamed().getOrDefault("portForClients", "1234"));
+        try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        Map<String,String> parametrit = parameters.getNamed();
+        int serveriPortti = Integer.parseInt(parametrit.get("portForConnection"));
+        System.out.println(serveriPortti);
         // Connect to address given as a command line parameter "server" (default: localhost) on port given (default: 1234)
-        connectToServer(parameters.getNamed().getOrDefault("server", "localhost"), parameters.getNamed().getOrDefault("port", "1234"));
-
+        if(serveriPortti!=0) {
+        	connectToServer(parameters.getNamed().getOrDefault("address", "localhost"), parameters.getNamed().getOrDefault("portForConnection", "1234"));
+        }
         views = new Views(mainCanvas, lowendMachine, synkistely, configuration().tickDuration, new Random().nextLong());
         this.console = window.console();
 

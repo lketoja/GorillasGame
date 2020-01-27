@@ -10,15 +10,19 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+
+import fi.utu.tech.distributed.gorilla.logic.ChatMessage;
 
 public class Mesh extends Thread{
 	
-	final long meshId = new Random().nextLong();
-	private ArrayList<Handler> handlers = new ArrayList<>();
+	public final long meshId = new Random().nextLong();
+	private List<Handler> handlers= Collections.synchronizedList(new ArrayList<Handler>());
 	private ServerSocket ss;
 	private int serverPort;
-	private ArrayList<Long> seenMessages = new ArrayList<>();
+	private List<Long> seenMessages = Collections.synchronizedList(new ArrayList<Long>());
 	
 	
 	/**
@@ -55,10 +59,12 @@ public class Mesh extends Thread{
      * @param o Lähetettävä hyötykuorma
      * @throws IOException 
      */
-    public void broadcast(Message message) throws IOException {
-    	for(Handler handler : handlers) {
-    		handler.send(message);
-    	}
+    public void broadcast(Serializable o) throws IOException {
+    	synchronized (handlers) {
+    		for(Handler handler : handlers) {
+        		handler.send(o);
+        	}
+    	}    	
     }
 
     /**
@@ -88,8 +94,8 @@ public class Mesh extends Thread{
      * Jos et käytä sisäluokkaa, pitää olla public
      * @param token Viestitunniste 
      */
-    private void addToken(Message message) {
-    	seenMessages.add(message.getToken());
+    private void addToken(long token) {
+    	seenMessages.add(token);
     }
 
     /**
@@ -98,8 +104,8 @@ public class Mesh extends Thread{
      * Jos et käytä sisäluokkaa, pitää olla public
      * @param token Viestitunniste 
      */
-    private boolean tokenExists(Message message) {
-    	if(seenMessages.contains(message.getToken())) {
+    private boolean tokenExists(long token) {
+    	if(seenMessages.contains(token)) {
     		return true;
     	}
     	return false;
@@ -114,8 +120,9 @@ public class Mesh extends Thread{
      */
     public void connect(InetAddress addr, int port) throws IOException, ClassNotFoundException {
     	Socket s = new Socket(addr, port);
-    	System.out.println("Connection made to server");
+    	System.out.println("Metodissa connect: soketti luotu");
 		Handler handler = new Handler(s);
+    	System.out.println("Metodissa connect: handler luotu");
 		handlers.add(handler);
 		handler.start();
     }
@@ -126,23 +133,25 @@ public class Mesh extends Thread{
     	ObjectInputStream oIn;
     	
     	public Handler(Socket socket) throws IOException {
-    		socket = this.socket;
-    		oOut = new ObjectOutputStream(socket.getOutputStream());
+    		this.socket = socket;
     		oIn = new ObjectInputStream(socket.getInputStream());
+    		oOut = new ObjectOutputStream(socket.getOutputStream());
+    		
     	}
     	
+    
     	public void run() {
     			try {
     				while(true) {
     					Message message = (Message)oIn.readObject();    					
-    					if(!tokenExists(message)) {
-    						addToken(message);
-    						long recipient = message.getRecipient();
-        					if(recipient == 0L) {
-        						System.out.println("Received message for everyone: " + message.getText());
+    					if(!tokenExists(message.token)) {
+    						addToken(message.token);
+    						long recipient = message.recipient;
+        					if(recipient==0L) {
+        						System.out.println("Received message for everyone: " + message.contents);
         						broadcast(message);
-        					} else if(recipient == meshId){
-        						System.out.println("Received message for us: " + message.getText());
+        					} else if(recipient==meshId){
+        						System.out.println("Received message for us: " + message.contents);
         					} else {
         						System.out.println("Received message meant for someone else. "
         								+ "Sending it forward...");
@@ -157,9 +166,9 @@ public class Mesh extends Thread{
     	
     	
     	//siirrä tänne broadcast metodin logiikka
-    	public void send(Message message) {
+    	public void send(Serializable o) {
     		try {
-				oOut.writeObject(message);
+				oOut.writeObject(o);
 				oOut.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
