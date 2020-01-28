@@ -120,7 +120,7 @@ public class Mesh extends Thread{
      */
     public void connect(InetAddress addr, int port) throws IOException, ClassNotFoundException {
     	Socket s = new Socket(addr, port);
-    	System.out.println("Metodissa connect: soketti luotu");
+    	System.out.println("Metodissa connect: soketti luotu, yhteys osoitteeseen " + addr + "muodostettu");
 		Handler handler = new Handler(s);
     	System.out.println("Metodissa connect: handler luotu");
 		handlers.add(handler);
@@ -134,30 +134,41 @@ public class Mesh extends Thread{
     	
     	public Handler(Socket socket) throws IOException {
     		this.socket = socket;
-    		oIn = new ObjectInputStream(socket.getInputStream());
-    		oOut = new ObjectOutputStream(socket.getOutputStream());
     		
     	}
     	
     
     	public void run() {
     			try {
+    				oIn = new ObjectInputStream(socket.getInputStream());
+    	    		oOut = new ObjectOutputStream(socket.getOutputStream());
+    	    		if(oOut==null)System.out.println("oOut null");
     				while(true) {
-    					Message message = (Message)oIn.readObject();    					
+    					Message message = (Message)oIn.readObject();
+    					
     					if(!tokenExists(message.token)) {
     						addToken(message.token);
-    						long recipient = message.recipient;
-        					if(recipient==0L) {
-        						System.out.println("Received message for everyone: " + message.contents);
-        						broadcast(message);
-        					} else if(recipient==meshId){
-        						System.out.println("Received message for us: " + message.contents);
-        					} else {
-        						System.out.println("Received message meant for someone else. "
-        								+ "Sending it forward...");
-        						broadcast(message);
-        					}
+    						broadcast(message);
     					}
+    						
+    					if(message.contents instanceof ChatMessage) {
+        					ChatMessage chatMessage = (ChatMessage)message.contents;
+        					System.out.println("received chat message: " + chatMessage.contents);
+        				}
+    						
+//    						long recipient = message.recipient;
+//        					if(recipient==0L) {
+//        						System.out.println("Received message for everyone: " + message.contents);
+//        						broadcast(message);
+//        					} else if(recipient==meshId){
+//        						System.out.println("Received message for us: " + message.contents);
+//        					} else {
+//        						System.out.println("Received message meant for someone else. "
+//        								+ "Sending it forward...");
+//        						broadcast(message);
+//        					}
+    					
+    					
     				}
     			} catch(Exception e) {
     				e.printStackTrace();

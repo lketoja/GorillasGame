@@ -25,3 +25,4 @@ public final class MoveThrowBanana extends Move {
 
     }
 }
+

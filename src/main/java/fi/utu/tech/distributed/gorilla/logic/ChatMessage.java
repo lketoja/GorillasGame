@@ -10,7 +10,6 @@ public final class ChatMessage implements Serializable{
     public final String sender;
     public final String recipient;
     public final String contents;
-    public final long token = new Random().nextLong();
 
     public ChatMessage(String sender, String recipient, String contents) {
         this.sender = sender;

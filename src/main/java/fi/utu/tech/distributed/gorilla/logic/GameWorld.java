@@ -60,6 +60,7 @@ public class GameWorld implements Scheduled {
     public void newTurn(Turn currentTurn) {
         wind.setTarget(currentTurn.windSpeed);
     }
+    
 
     protected void addGorilla(Point2D position, Player player) {
         Gorilla gorilla = new Gorilla(engine, position, player);

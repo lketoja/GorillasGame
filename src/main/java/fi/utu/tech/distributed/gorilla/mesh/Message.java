@@ -17,4 +17,6 @@ public final class Message implements Serializable{
         this.recipient = recipient;
         this.contents = contents;
     }
+    
+ 
 }
