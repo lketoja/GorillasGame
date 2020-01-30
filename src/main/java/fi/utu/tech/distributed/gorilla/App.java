@@ -1,6 +1,7 @@
 package fi.utu.tech.distributed.gorilla;
 
 import fi.utu.tech.distributed.gorilla.logic.GameMode;
+
 import fi.utu.tech.distributed.gorilla.logic.GorillaLogic;
 import fi.utu.tech.distributed.gorilla.logic.GorillaMultiplayerLogic;
 import fi.utu.tech.oomkit.app.OOMApp;

@@ -75,9 +75,9 @@ public class Player {
         readMoves();
         if (!Double.isNaN(angle) && !Double.isNaN(velocity)) {
             // for debugging
-            if (false)
+            if (false) 
                 System.out.println(name + " heittää, " + angle + "° @ " + velocity);
-
+            
             Move move = new MoveThrowBanana(angle, velocity);
             angle = velocity = Double.NaN;
             return move;

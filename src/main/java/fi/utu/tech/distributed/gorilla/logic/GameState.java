@@ -112,7 +112,7 @@ public class GameState implements Scheduled {
         return this.turnTimeLeft() < 0 || allReady;
     }
 
-    private void handlePlayerMove(Player player) {
+    protected void handlePlayerMove(Player player) {
         Move move = player.playTurn();
 
         if (move instanceof MoveThrowBanana) {

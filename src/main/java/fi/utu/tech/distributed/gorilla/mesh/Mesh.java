@@ -1,6 +1,11 @@
 package fi.utu.tech.distributed.gorilla.mesh;
 
 import java.io.IOException;
+import fi.utu.tech.distributed.gorilla.logic.GorillaLogic;
+import fi.utu.tech.distributed.gorilla.logic.GorillaMultiplayerLogic;
+import fi.utu.tech.distributed.gorilla.logic.Player;
+import fi.utu.tech.distributed.gorilla.logic.Move;
+
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,8 +16,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.utu.tech.distributed.gorilla.logic.ChatMessage;
 
@@ -23,15 +31,21 @@ public class Mesh extends Thread{
 	private ServerSocket ss;
 	private int serverPort;
 	private List<Long> seenMessages = Collections.synchronizedList(new ArrayList<Long>());
+	private GorillaMultiplayerLogic logic = new GorillaMultiplayerLogic();
 	
+	public List<Long> getSeenMessages(){
+		return seenMessages;
+	}
+
 	
 	/**
      * Luo Mesh-palvelininstanssi
      * @param port Portti, jossa uusien vertaisten liittymispyyntöjä kuunnellaan
 	 * @throws IOException 
      */
-    public Mesh(int port) throws IOException {
+    public Mesh(int port, GorillaMultiplayerLogic logic) throws IOException {
     	serverPort = port;
+    	this.logic = logic;
     	ss = new ServerSocket(port);
     	System.out.println("New Mesh created.");
     }
@@ -127,6 +141,10 @@ public class Mesh extends Thread{
 		handler.start();
     }
     
+    public void sendToGorilla(Message message) {
+    	logic.parseServer(message);
+    }
+    
     private class Handler extends Thread {
     	private Socket socket;
     	ObjectOutputStream oOut;
@@ -136,45 +154,27 @@ public class Mesh extends Thread{
     		this.socket = socket;
     		
     	}
-    	
     
     	public void run() {
     			try {
+    				oOut = new ObjectOutputStream(socket.getOutputStream());
     				oIn = new ObjectInputStream(socket.getInputStream());
-    	    		oOut = new ObjectOutputStream(socket.getOutputStream());
-    	    		if(oOut==null)System.out.println("oOut null");
+    	    		if(oOut==null) {
+    	    			System.out.println("oOut null");
+    	    		}
     				while(true) {
     					Message message = (Message)oIn.readObject();
     					
     					if(!tokenExists(message.token)) {
     						addToken(message.token);
     						broadcast(message);
+    						sendToGorilla(message);
     					}
-    						
-    					if(message.contents instanceof ChatMessage) {
-        					ChatMessage chatMessage = (ChatMessage)message.contents;
-        					System.out.println("received chat message: " + chatMessage.contents);
-        				}
-    						
-//    						long recipient = message.recipient;
-//        					if(recipient==0L) {
-//        						System.out.println("Received message for everyone: " + message.contents);
-//        						broadcast(message);
-//        					} else if(recipient==meshId){
-//        						System.out.println("Received message for us: " + message.contents);
-//        					} else {
-//        						System.out.println("Received message meant for someone else. "
-//        								+ "Sending it forward...");
-//        						broadcast(message);
-//        					}
-    					
-    					
-    				}
+    					    				}
     			} catch(Exception e) {
     				e.printStackTrace();
     			}	
     		}//run
-    	
     	
     	//siirrä tänne broadcast metodin logiikka
     	public void send(Serializable o) {

@@ -129,7 +129,7 @@ public class GorillaLogic implements GraphicalAppLogic {
      * Reads the commands given by user in GUI and passes them into
      * command parser (parseCommandLine())
      */
-    private void handleConsoleInput() {
+    protected void handleConsoleInput() {
         if (console != null && console.inputQueue().peek() != null) {
             parseCommandLine(console.inputQueue().poll());
         }
@@ -146,8 +146,9 @@ public class GorillaLogic implements GraphicalAppLogic {
         // To --port=1234 
         // IDEA: Run -> Edit configurations -> Program arguments
         // Eclipse (Ran as Java Application): Run -> Run configuration... -> Java Application -> Main (varies) -> Arguments -> Program arguments
-    	System.out.println("Komentoriviparametrien testaus: " + parameters.getNamed().getOrDefault("testi", "default"));
-
+    	
+    	myName = parameters.getNamed().getOrDefault("name", "Mää");
+    	
         // Start server on the port given as a command line parameter or 1234
         startServer(parameters.getNamed().getOrDefault("portForClients", "1234"));
         try {
@@ -156,13 +157,14 @@ public class GorillaLogic implements GraphicalAppLogic {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        Map<String,String> parametrit = parameters.getNamed();
-        int serveriPortti = Integer.parseInt(parametrit.get("portForConnection"));
-        System.out.println(serveriPortti);
+        
+        int portForConnection = Integer.parseInt(parameters.getNamed().get("portForConnection"));
+        System.out.println(portForConnection);
         // Connect to address given as a command line parameter "server" (default: localhost) on port given (default: 1234)
-        if(serveriPortti!=0) {
+        if(portForConnection!=0) {
         	connectToServer(parameters.getNamed().getOrDefault("address", "localhost"), parameters.getNamed().getOrDefault("portForConnection", "1234"));
         }
+        
         views = new Views(mainCanvas, lowendMachine, synkistely, configuration().tickDuration, new Random().nextLong());
         this.console = window.console();
 
@@ -256,7 +258,7 @@ public class GorillaLogic implements GraphicalAppLogic {
     /**
      * Starts a new single player game with max number of AI players
      */
-    private void initGame() {
+    protected void initGame() {
         double h = getCanvas().getHeight();
 
         // Create maxPlayers-1 AI players
@@ -398,7 +400,7 @@ public class GorillaLogic implements GraphicalAppLogic {
     /**
      * Calls different functions depending on the current game mode. Called periodically by the GorillaLogic tick() method
      */
-    private void toggleGameMode() {
+    protected void toggleGameMode() {
         switch (gameMode) {
             case Intro:
                 // when the intro is done, jump to menu
