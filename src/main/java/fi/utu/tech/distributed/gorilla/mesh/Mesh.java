@@ -159,18 +159,17 @@ public class Mesh extends Thread{
     			try {
     				oOut = new ObjectOutputStream(socket.getOutputStream());
     				oIn = new ObjectInputStream(socket.getInputStream());
-    	    		if(oOut==null) {
-    	    			System.out.println("oOut null");
-    	    		}
+    	    		
     				while(true) {
     					Message message = (Message)oIn.readObject();
     					
     					if(!tokenExists(message.token)) {
     						addToken(message.token);
     						broadcast(message);
-    						sendToGorilla(message);
+    						sendToGorilla(message);    						
     					}
-    					    				}
+    				
+    				}
     			} catch(Exception e) {
     				e.printStackTrace();
     			}	

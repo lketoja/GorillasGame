@@ -97,24 +97,14 @@ public class GorillaMultiplayerLogic extends GorillaLogic{
 	        	//reagoivat tähän lähettämällä viestin MeshCoummunication.Join, johon reagoidaan 
 	        	//tallentamalla pelaajan id
 	        	sendMessage(MeshCommunication.Host);
-	        	sendChatMessage("I'm hosting the game. Game will start soon!");
 	        	
 	        	//Lähetetään muille pelajille tämän noden id.
 	        	sendMessage(MeshCommunication.Join);
 	        	
-	        	//Odotetaan minuutti, jotta viestit varmasti ehtivät perille.
-				Thread.sleep(30000);
-				
-				double h = getCanvas().getHeight();
-		        
-		        //public GameConfiguration(long seed, double gameWorldHeight, Map<Long, String> playerIdNames)
-		        GameConfiguration configuration = new GameConfiguration(gameSeed, h, playerId_Name);
-		        
-		        sendMessage(configuration);
-		        
-		        //setMode kutsuu metodia initGame()
-		        setMode(GameMode.Game); 
-		        
+	        	playerIds.add(mesh.meshId);
+	        	
+	        	sendChatMessage("I'm hosting the game!");
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -181,9 +171,10 @@ public class GorillaMultiplayerLogic extends GorillaLogic{
 					MeshCommunication meshComm = (MeshCommunication)message.contents;
 					switch(meshComm) {
 						case Host:
+							playerIds.add(mesh.meshId);
 							try {
 								sendMessage(MeshCommunication.Join);
-								System.out.println("Received message 'host'");
+								System.out.println("Received message 'host', sent message 'join'");
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -192,6 +183,21 @@ public class GorillaMultiplayerLogic extends GorillaLogic{
 							System.out.println("Received message 'join' from " + message.sender);
 							playerId_Name.put(message.sender, null);
 							playerIds.add(message.sender);
+							if(playerIds.size()>1) {
+								double h = getCanvas().getHeight();
+						        
+						        //public GameConfiguration(long seed, double gameWorldHeight, Map<Long, String> playerIdNames)
+						        GameConfiguration configuration = new GameConfiguration(gameSeed, h, playerId_Name);
+						        
+						        try {
+									sendMessage(configuration);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+						        
+						        //setMode kutsuu metodia initGame()
+						        setMode(GameMode.Game); 
+							}
 							break;
 					}
 				}
