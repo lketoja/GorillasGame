@@ -1,4 +1,11 @@
-# Assignment
+#Oma lisäys:
+Tämä projekti on Turun Yliopiston kurssin (Hajautetut ohjelmistot ja pilvipalvelut) harjoitustyö. Meille annettiin valmiina Javalla koodattu peli, jossa gorillat heittelevät toisiaan banaaneilla. Käyttöliittymä on toteutettu JavaFX:llä. Alkuperäistä versiota pystyi pelaamaan vain yksin tietokonetta vastaan. Tehtävänä oli laajentaa peli moninpeliksi. Oma koodini on lähinnä luokissa GorillaMultiplayerLogic ja Mesh.
+
+Ensimmäiseksi piti toteuttaa Mesh-verkko, jonka yli pelaajat voivat lähettää toisilleen viestejä. Toisessa vaiheessa piti muokata peliä siten, että pelin pelaaminen onnistuu moninpelinä Mesh-verkon yli. Mesh-verkon idea on, että pelaaja yhdistää koneensa jonkun toisen pelaajan koneeseen, joka on jo osa Mesh-verkkoa. Tämän lisäksi pelaaja toimii palvelimena uusille pelaajille eli Mesh verkosta muodostuu puumainen rakenne. Jokainen toimii siis sekä asiakkaana että palvelimena (pelin käynnistäjä eli puun juuri on tietenkin vain palvelimen roolissa).
+
+Jokaisella pelaajalla täytyy siis olla tämä Java-ohjelma koneellaan. Peli pystytetään siten, että GorillaLogic luokan initialize() metodi kutsuu metodia startServer(), jolle annetaan parametrina "portForClients" niminen komentoriviparametri (default-arvona 1234). Sen jälkeen kutsutaan metodia connectToServer(), jolle annetaan parametrina "address" niminen komentoriviparametri (default-arvona localhost) ja "portForConnection" niminen komentoriviparametri (default-arvona 1234). Luokalla GorillaMultiplayerLogic on muuttuja NUMBER_OF_PLAYERS, joka määrittelee kuinka monta pelaajaa peliin mahtuu. Kun tämä luku on tullut täyteen, peli käynnistetään.
+
+# Original README:
 This README contains only general instructions on how to run the game. The development setup, assignment, program structure and hints for completing the assignment can be found in [doc/index.md](doc/index.md) (in Finnish).
 
 # Project description
