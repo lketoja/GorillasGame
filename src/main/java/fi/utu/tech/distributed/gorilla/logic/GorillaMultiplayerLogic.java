@@ -24,6 +24,7 @@ public class GorillaMultiplayerLogic extends GorillaLogic{
 	private Map<Long, String> playerId_Name = new HashMap<Long, String>();
 	private List<Long> playerIds = new ArrayList<>();
 	private GameConfiguration configuration;
+	public final int NUMBER_OF_PLAYERS = 2;
 		
 	/**
      * Start the mesh server on the specified port
@@ -183,7 +184,7 @@ public class GorillaMultiplayerLogic extends GorillaLogic{
 							System.out.println("Received message 'join' from " + message.sender);
 							playerId_Name.put(message.sender, null);
 							playerIds.add(message.sender);
-							if(playerIds.size()>1) {
+							if(playerIds.size()==NUMBER_OF_PLAYERS) {
 								double h = getCanvas().getHeight();
 						        
 						        //public GameConfiguration(long seed, double gameWorldHeight, Map<Long, String> playerIdNames)
