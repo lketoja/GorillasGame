@@ -1,4 +1,4 @@
-#Oma lisäys:
+# Oma lisäys:
 Tämä projekti on Turun Yliopiston kurssin (Hajautetut ohjelmistot ja pilvipalvelut) harjoitustyö. Meille annettiin valmiina Javalla koodattu peli, jossa gorillat heittelevät toisiaan banaaneilla. Käyttöliittymä on toteutettu JavaFX:llä. Alkuperäistä versiota pystyi pelaamaan vain yksin tietokonetta vastaan. Tehtävänä oli laajentaa peli moninpeliksi. Oma koodini on lähinnä luokissa GorillaMultiplayerLogic ja Mesh.
 
 Ensimmäiseksi piti toteuttaa Mesh-verkko, jonka yli pelaajat voivat lähettää toisilleen viestejä. Toisessa vaiheessa piti muokata peliä siten, että pelin pelaaminen onnistuu moninpelinä Mesh-verkon yli. Mesh-verkon idea on, että pelaaja yhdistää koneensa jonkun toisen pelaajan koneeseen, joka on jo osa Mesh-verkkoa. Tämän lisäksi pelaaja toimii palvelimena uusille pelaajille eli Mesh verkosta muodostuu puumainen rakenne. Jokainen toimii siis sekä asiakkaana että palvelimena (pelin käynnistäjä eli puun juuri on tietenkin vain palvelimen roolissa).
